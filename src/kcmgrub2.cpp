@@ -23,13 +23,20 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(KCMTestFactory, "kcm_grub2.json", registerPlugin<KcmGrub2>();)
 
+static QJSValue dataSingleton(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    auto result = new GrubData();
+    return scriptEngine->newQObject(result);
+}
+
 KcmGrub2::KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args)
     : KQuickAddons::ManagedConfigModule(parent, metaData, args)
 {
     // qmlRegisterAnonymousType<GrubData>("org.kde.kcms.grub2", 1);
-    GrubData grubData;
-    qmlRegisterSingletonInstance("org.kde.kcms.grub2",1, 0,"Data",&grubData);
-    
+    // GrubData grubData;
+    // qmlRegisterSingletonInstance("org.kde.kcms.grub2",1, 0,"Data",&grubData);
+    qmlRegisterSingletonType("org.kde.kcms.grub2", 1, 0, "Data", dataSingleton);
 }
 
 KcmGrub2::~KcmGrub2()

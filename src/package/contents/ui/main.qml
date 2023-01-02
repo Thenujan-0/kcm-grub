@@ -20,9 +20,36 @@ KCM.SimpleKCM {
         showCloseButton: true
     }
     Kirigami.FormLayout{
-        QQC2.ComboBox{
-            Kirigami.FormData.label:"Defailt entry:"
-            model: Data.osEntries
+        RowLayout{
+            Kirigami.FormData.label:"default entry:"
+
+            QQC2.RadioButton{
+                id:rb_pre_defined
+                checked:false
+                text:"predefined"
+
+                onClicked: {
+                    if(checked){
+                        rb_previously_booted.checked=false
+                    }
+                }
+
+            }
+            QQC2.ComboBox{
+                id:cob_os_entries
+                model:Data.osEntries
+            }
+        }
+
+        QQC2.RadioButton{
+            id:rb_previously_booted
+            text:"previously booted entry"
+            checked:false
+            onClicked: {
+                if(checked){
+                    rb_pre_defined.checked=false
+                }
+            }
         }
     }
 
