@@ -33,9 +33,6 @@ static QJSValue dataSingleton(QQmlEngine *engine, QJSEngine *scriptEngine)
 KcmGrub2::KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args)
     : KQuickAddons::ManagedConfigModule(parent, metaData, args)
 {
-    // qmlRegisterAnonymousType<GrubData>("org.kde.kcms.grub2", 1);
-    // GrubData grubData;
-    // qmlRegisterSingletonInstance("org.kde.kcms.grub2",1, 0,"Data",&grubData);
     qmlRegisterSingletonType("org.kde.kcms.grub2", 1, 0, "Data", dataSingleton);
 }
 
