@@ -51,6 +51,59 @@ KCM.SimpleKCM {
                 }
             }
         }
+
+        Item{
+            Layout.preferredHeight:Kirigami.Units.largeSpacing
+        }
+
+        RowLayout{
+
+            Kirigami.FormData.label:"Visibility:"
+
+            QQC2.CheckBox{
+                id:chb_bootDefault
+
+                text:"Boot default entry after"
+                checked:Data.bootDefault
+            }
+
+            QQC2.TextField{
+                id:grubTimeout
+                text: Data.grubTimeout.toString()
+            }
+            QQC2.Button{
+                icon.name:"add"
+                onClicked: {
+                    var val =parseFloat(grubTimeout.text) +1
+                    grubTimeout.text = val.toString()
+                }
+            }
+            QQC2.Button{
+                icon.name:"remove"
+                onClicked: {
+                    var val =parseFloat(grubTimeout.text) -1
+                    grubTimeout.text = val.toString()
+                }
+            }
+
+            QQC2.Label{
+                text:"seconds"
+            }
+        }
+
+        QQC2.CheckBox{
+            text: "Show menu"
+            checked: Data.showMenu
+        }
+
+        Item{
+            Layout.preferredHeight:Kirigami.Units.largeSpacing
+        }
+
+        QQC2.CheckBox{
+            Kirigami.FormData.label: "Other:"
+            text: "Look for other Operating systems"
+        }
     }
 
 }

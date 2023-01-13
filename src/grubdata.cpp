@@ -145,6 +145,54 @@ void GrubData::parseEntries(const QString &config){
     }
 }
 
+void GrubData::parseSettings(const QString &config)
+{
+    QString line, configStr = config;
+    QTextStream stream(&configStr, QIODevice::ReadOnly | QIODevice::Text);
+
+    m_settings.clear();
+    while (!stream.atEnd()) {
+        line = stream.readLine().trimmed();
+        if (line.contains(QRegExp(QLatin1String("^(GRUB_|LANGUAGE=)")))) {
+            m_settings[line.section(QLatin1Char('='), 0, 0)] = line.section(QLatin1Char('='), 1);
+        }
+    }
+    parseValues();
+}
+void GrubData::parseValues()
+{
+    if (m_settings["GRUB_TIMEOUT_STYLE"] == "hidden") {
+        m_showMenu = true;
+    } else {
+        m_showMenu = false;
+    }
+
+    if (m_settings.contains("GRUB_TIMEOUT")) {
+        m_grubTimeout = unquoteWord(m_settings["GRUB_TIMEOUT"]).toFloat();
+        qWarning() << m_grubTimeout << "timeout" << unquoteWord(m_settings["GRUB_TIMEOUT"]);
+    }
+}
+
+bool GrubData::showMenu()
+{
+    return m_showMenu;
+}
+
+bool GrubData::bootDefault()
+{
+    return m_bootDefaultAfter;
+}
+
+float GrubData::grubTimeout()
+{
+    qWarning() << "returned";
+    return m_grubTimeout;
+}
+bool GrubData::lookForOtherOs()
+{
+    return m_lookForOtherOs;
+}
+
 void GrubData::readAll(){
     QByteArray fileContents;
     LoadOperations operations = NoOperation;
@@ -155,11 +203,11 @@ void GrubData::readAll(){
     } else {
         operations |= MenuFile;
     }
-    // if (readFile(grubConfigPath(), fileContents)) {
-    //     parseSettings(QString::fromUtf8(fileContents.constData()));
-    // } else {
-    //     operations |= ConfigurationFile;
-    // }
+    if (readFile("/etc/default/grub", fileContents)) {
+        parseSettings(QString::fromUtf8(fileContents.constData()));
+    } else {
+        operations |= ConfigurationFile;
+    }
     // if (readFile(grubEnvPath(), fileContents)) {
     //     parseEnv(QString::fromUtf8(fileContents.constData()));
     // } else {
@@ -178,7 +226,6 @@ void GrubData::readAll(){
     //     operations |= Locales;
     // }
 }
-
 
 QStringList GrubData::getAllOsEntries(){
     QStringList entries;

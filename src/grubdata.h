@@ -1,4 +1,5 @@
 #pragma once
+#include <QHash>
 #include <QObject>
 #include <entry.h>
 
@@ -7,13 +8,13 @@ QStringList getAllOsEntries();
 class GrubData : public QObject{
 
     Q_OBJECT
-    // Q_PROPERTY(float grubTimeout READ grubTimeout)
+    Q_PROPERTY(float grubTimeout READ grubTimeout)
     // Q_PROPERTY(bool predefined READ predefined)
     // Q_PROPERTY(bool previouslyBooted READ previouslyBooted)
     // Q_PROPERTY(defaultEntryType defaultEntryType READ getDefaultEntryType)
     Q_PROPERTY(QStringList osEntries READ getAllOsEntries);
-    // Q_PROPERTY(bool showMenu READ showMenu)
-    // Q_PROPERTY(bool bootDefault READ bootDefault)
+    Q_PROPERTY(bool showMenu READ showMenu)
+    Q_PROPERTY(bool bootDefault READ bootDefault)
     // Q_PROPERTY(bool lookForOtherOs READ lookForOtherOs)
     
 
@@ -37,6 +38,8 @@ private:
     void parseEntries(const QString &line);
     bool readFile(const QString &filename, QByteArray &fileContents);
     void readAll();
+    void parseSettings(const QString &config);
+    void parseValues();
 
     // void load();
     // bool predefined();
@@ -44,12 +47,12 @@ private:
 
     // GrubData::defaultEntryType getDefaultEntryType();
     QStringList getAllOsEntries();
-    // bool showMenu();
-    // bool bootDefault();
-    // float grubTimeout();
-    // bool lookForOtherOs();
+    bool showMenu();
+    bool bootDefault();
+    float grubTimeout();
+    bool lookForOtherOs();
 
-
+    QHash<QString, QString> m_settings;
 
     bool m_bootDefaultAfter;
     bool m_lookForOtherOs;
