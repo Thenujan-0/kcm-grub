@@ -173,6 +173,7 @@ void GrubData::parseSettings(const QString &config)
     addDefaultValues();
     parseValues();
 }
+
 void GrubData::addDefaultValues()
 {
     QMap<QString, QString> map;
@@ -221,6 +222,7 @@ void GrubData::parseValues()
     // qWarning() << m_defaultEntry<< m_defaultEntryType;
     Q_EMIT dataChanged();
 }
+
 void GrubData::set()
 {
     // qWarning() << "set was called";
@@ -262,9 +264,7 @@ void GrubData::save()
         QString contents = job->data()["result"].toString();
         qWarning() << "KAuth result:" << contents;
     }
-    // qWarning() << m_defaultEntry_orig << "default entry orig";
     readAll();
-    // qWarning() << m_defaultEntry_orig << "default entry orig";
 }
 
 bool GrubData::setValue(QString key, QString val, QString readFileName)
@@ -320,6 +320,7 @@ bool GrubData::setValue(QString key, QString val, QString readFileName)
     readFile.close();
     return true;
 }
+
 void GrubData::initCache()
 {
     const QString PATH = qgetenv("HOME") + "/.local/share/grub-editor-cpp";
@@ -336,6 +337,7 @@ void GrubData::initCache()
 
     // qWarning() << PATH;
 }
+
 void GrubData::setCurrentFile(const QString &fileName)
 {
     m_currFileName = fileName;
