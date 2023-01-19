@@ -111,18 +111,30 @@ KCM.SimpleKCM {
         }
 
         QQC2.CheckBox{
+            id:automaticallyBootDefault
             text: "Automatically boot default entry"
             checked:kcm.grubData.timeout != -1
+            onClicked: {
+                if(!checked){
+                    kcm.grubData.timeout = -1
+                    kcm.settingsChanged()
+                }
+            }
         }
+
         RowLayout{
             QQC2.RadioButton{
                 id:immediately
                 Layout.leftMargin: Kirigami.Units.largeSpacing *3
                 text:"Immediately"
+                enabled:automaticallyBootDefault.checked
+
                 checked:kcm.grubData.timeout == 0
                 onClicked: {
                     if(checked){
                         after.checked=false
+                        kcm.grubData.timeout = 0
+                        kcm.settingsChanged()
                     }
                 }
             }
@@ -132,10 +144,12 @@ KCM.SimpleKCM {
                 id:after
                 Layout.leftMargin: Kirigami.Units.largeSpacing *3
                 text:"After"
+                enabled:automaticallyBootDefault.checked
                 checked:kcm.grubData.timeout != 0
                 onClicked: {
                     if(checked){
                         immediately.checked=false
+                        kcm.grubData.timeout = Number(timeout.text)
                     }
                 }
 
@@ -144,12 +158,17 @@ KCM.SimpleKCM {
             DoubleSpinBox{
                 id:timeout
                 text: kcm.grubData.timeout.toString()
+                onIncrease: function(){ kcm.grubData.timeout += 1 }
+                onDecrease: function(){ kcm.grubData.timeout -= 1 }
 
                 onEditFinished: {
-                    kcm.grubData.timeout = Number(text)
-                    kcm.settingsChanged()
+                    if(after.checked){
+                        kcm.grubData.timeout = Number(text)
+                        kcm.settingsChanged()
+                    }
                 }
             }
+
             QQC2.Label{
                 text:"seconds"
             }
