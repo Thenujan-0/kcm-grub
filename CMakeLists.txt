@@ -16,13 +16,13 @@ include(KDEClangFormat)
 include(FeatureSummary)
 include(KDEGitCommitHooks)
 
-find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Quick QuickWidgets)
+find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Quick QuickWidgets Test)
 
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
     CoreAddons
     I18n
     XmlGui
-    # Auth
+    Auth
     ConfigWidgets
     KIO
     Archive
@@ -46,7 +46,7 @@ add_definitions(-DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT)
 # install(TARGETS kcmtest_authhelper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/src/config.h)
-
+enable_testing ()
 add_subdirectory(src)
 
 # add clang-format target for all our real source files

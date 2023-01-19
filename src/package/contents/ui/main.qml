@@ -10,7 +10,8 @@ import QtGraphicalEffects 1.0
 
 import org.kde.kcm 1.4 as KCM
 import org.kde.kirigami 2.14 as Kirigami
-import org.kde.kcms.grub2 1.0
+import org.kde.plasma.kcm.data 1.0
+// import org.kde.kcms.grub2 1.0
 
 KCM.SimpleKCM {
     id: root
@@ -25,30 +26,47 @@ KCM.SimpleKCM {
 
             QQC2.RadioButton{
                 id:rb_pre_defined
-                checked:false
+                // checked:kcm.grubData.defaultEntryType == DefaultEntry.Predefined
+                Binding on checked { value: kcm.grubData.defaultEntryType == DefaultEntry.Predefined }
                 text:"predefined"
 
                 onClicked: {
                     if(checked){
                         rb_previously_booted.checked=false
                     }
+                    kcm.grubData.defaultEntryType = checked ? DefaultEntry.Predefined : DefaultEntry.PreviouslyBooted
+                    kcm.grubData.defaultEntry = cob_os_entries.currentText;
+                    console.log(cob_os_entries.currentText,kcm.grubData.defaultEntry)
+                    kcm.settingsChanged()
+
                 }
 
             }
             QQC2.ComboBox{
                 id:cob_os_entries
-                model:Data.osEntries
+                model:kcm.grubData.osEntries
+
+                onActivated: {
+                    if (rb_pre_defined.checked){
+                        kcm.grubData.defaultEntry = cob_os_entries.currentText
+                    }
+                    kcm.settingsChanged()
+                }
             }
         }
 
         QQC2.RadioButton{
             id:rb_previously_booted
             text:"previously booted entry"
-            checked:false
+            // checked:kcm.grubData.defaultEntryType == DefaultEntry.PreviouslyBooted
+            Binding on checked { value: kcm.grubData.defaultEntryType == DefaultEntry.PreviouslyBooted }
             onClicked: {
                 if(checked){
                     rb_pre_defined.checked=false
                 }
+                console.log("previously :", kcm.grubData.defaultEntryType,DefaultEntry.PreviouslyBooted)
+                kcm.grubData.defaultEntryType = checked ? DefaultEntry.PreviouslyBooted : DefaultEntry.Predefined
+                kcm.settingsChanged()
             }
         }
 
@@ -58,42 +76,83 @@ KCM.SimpleKCM {
 
         RowLayout{
 
-            Kirigami.FormData.label:"Visibility:"
+            Kirigami.FormData.label:"Timeout:"
 
             QQC2.CheckBox{
                 id:chb_bootDefault
 
-                text:"Boot default entry after"
-                checked:Data.bootDefault
+                text:"Hide the menu for"
+                checked:kcm.grubData.hiddenTimeout !=0
             }
 
-            QQC2.TextField{
+            DoubleSpinBox{
                 id:grubTimeout
-                text: Data.grubTimeout.toString()
+                text: kcm.grubData.hiddenTimeout
+
             }
-            QQC2.Button{
-                icon.name:"add"
-                onClicked: {
-                    var val =parseFloat(grubTimeout.text) +1
-                    grubTimeout.text = val.toString()
-                }
-            }
-            QQC2.Button{
-                icon.name:"remove"
-                onClicked: {
-                    var val =parseFloat(grubTimeout.text) -1
-                    grubTimeout.text = val.toString()
-                }
-            }
+            
 
             QQC2.Label{
                 text:"seconds"
             }
         }
+        RowLayout{//Just for indentation
+            QQC2.CheckBox{
+                Layout.leftMargin: Kirigami.Units.largeSpacing *3
+                text: "Show countdown timer"
+                checked: false
+                onClicked: {
+                    kcm.grubData.set()
+                }
+            }
+        }
+        Item{
+            Layout.preferredHeight:Kirigami.Units.largeSpacing
+        }
 
         QQC2.CheckBox{
-            text: "Show menu"
-            checked: Data.showMenu
+            text: "Automatically boot default entry"
+            checked:kcm.grubData.timeout != -1
+        }
+        RowLayout{
+            QQC2.RadioButton{
+                id:immediately
+                Layout.leftMargin: Kirigami.Units.largeSpacing *3
+                text:"Immediately"
+                checked:kcm.grubData.timeout == 0
+                onClicked: {
+                    if(checked){
+                        after.checked=false
+                    }
+                }
+            }
+        }
+        RowLayout{
+            QQC2.RadioButton{
+                id:after
+                Layout.leftMargin: Kirigami.Units.largeSpacing *3
+                text:"After"
+                checked:kcm.grubData.timeout != 0
+                onClicked: {
+                    if(checked){
+                        immediately.checked=false
+                    }
+                }
+
+
+            }
+            DoubleSpinBox{
+                id:timeout
+                text: kcm.grubData.timeout.toString()
+
+                onEditFinished: {
+                    kcm.grubData.timeout = Number(text)
+                    kcm.settingsChanged()
+                }
+            }
+            QQC2.Label{
+                text:"seconds"
+            }
         }
 
         Item{
@@ -101,9 +160,10 @@ KCM.SimpleKCM {
         }
 
         QQC2.CheckBox{
-            Kirigami.FormData.label: "Other:"
+            Kirigami.FormData.label: "Generated entries:"
             text: "Look for other Operating systems"
+            checked: kcm.grubData.lookForOtherOs
+            onClicked: kcm.grubData.lookForOtherOs = checked
         }
     }
-
 }

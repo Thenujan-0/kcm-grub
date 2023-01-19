@@ -1,25 +1,35 @@
 
 #include <QDebug>
+#include <QDir>
+#include <QEventLoop>
 #include <QFile>
+#include <QTimer>
+#include <QtGlobal>
 
 #include <entry.h>
 #include <grubdata.h>
 #include <common.h>
 
+#include <KAuth/Action>
+#include <KAuth/ExecuteJob>
+#include <KIO/CopyJob>
+#include <KJob>
+
+QString HOME = qgetenv("HOME");
+
+static const QString TEMPDATAFILE = HOME + QString("/.local/share/grub-editor-cpp/grubToWrite.txt");
 
 GrubData::GrubData(QObject *parent)
     :m_issues(QStringList()),
     m_currFileName(QString("/etc/default/grub"))
 {
-//      showMenu = true;
     readAll();
-    qWarning()<<"loaded everything here";
-    for (const Entry &osEntry :qAsConst(m_osEntries)){
-        qWarning() <<osEntry.fullTitle();
-    }
+    // qWarning()<<"loaded everything here";
+    // for (const Entry &osEntry :qAsConst(m_osEntries)){
+    //     qWarning() <<osEntry.fullTitle();
+    // }
     // qWarning()<<m_osEntries;
 }
-
 
 bool GrubData::readFile(const QString &fileName, QByteArray &fileContents){
     QFile file(fileName);
@@ -33,6 +43,7 @@ bool GrubData::readFile(const QString &fileName, QByteArray &fileContents){
     fileContents = file.readAll();
     return true;
 }
+
 QString GrubData::parseTitle(const QString &line){
     QChar ch;
     QString entry, lineStr = line;
@@ -73,6 +84,7 @@ QString GrubData::parseTitle(const QString &line){
     }
     return entry;
 }
+
 void GrubData::parseEntries(const QString &config){
     bool inEntry = false;
     int menuLvl = 0;
@@ -147,6 +159,7 @@ void GrubData::parseEntries(const QString &config){
 
 void GrubData::parseSettings(const QString &config)
 {
+    // qWarning("parse settings called again");
     QString line, configStr = config;
     QTextStream stream(&configStr, QIODevice::ReadOnly | QIODevice::Text);
 
@@ -157,53 +170,201 @@ void GrubData::parseSettings(const QString &config)
             m_settings[line.section(QLatin1Char('='), 0, 0)] = line.section(QLatin1Char('='), 1);
         }
     }
+    addDefaultValues();
     parseValues();
+}
+void GrubData::addDefaultValues()
+{
+    QMap<QString, QString> map;
+    map["GRUB_TIMEOUT"] = "5";
+    map["GRUB_DEFAULT"] = "0";
+    map["GRUB_DISABLE_OS_PROBER"] = "true";
+    map["GRUB_TIMEOUT_STYLE"] = "menu";
+
+    QMapIterator<QString, QString> i(map);
+    while (i.hasNext()) {
+        i.next();
+        if (m_settings.value(i.key()).isEmpty()) {
+            m_settings[i.key()] = i.value();
+        }
+    }
 }
 void GrubData::parseValues()
 {
-    if (m_settings["GRUB_TIMEOUT_STYLE"] == "hidden") {
-        m_showMenu = true;
+    m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
+    // qWarning() << m_timeout_orig << "timeout" << unquoteWord(m_settings["GRUB_TIMEOUT"]);
+
+    QString val = unquoteWord(m_settings.value("GRUB_DEFAULT"));
+    // qWarning() <<val << "GRUB_DEFAULT";
+    if (val == "saved") {
+        m_defaultEntryType_orig = GrubData::DefaultEntryType::PreviouslyBooted;
     } else {
-        m_showMenu = false;
+        m_defaultEntry_orig = val;
+        m_defaultEntryType_orig = GrubData::DefaultEntryType::Predefined;
     }
 
-    if (m_settings.contains("GRUB_TIMEOUT")) {
-        m_grubTimeout = unquoteWord(m_settings["GRUB_TIMEOUT"]).toFloat();
-        qWarning() << m_grubTimeout << "timeout" << unquoteWord(m_settings["GRUB_TIMEOUT"]);
+    if (m_settings.contains("GRUB_HIDDEN_TIMEOUT")) {
+        m_hiddenTimeout_orig = unquoteWord(m_settings["GRUB_HIDDEN_TIMEOUT"]).toFloat();
+    } else {
+        m_hiddenTimeout_orig = 0;
     }
+    if (m_settings.contains("GRUB_DISABLE_OS_PROBER")) {
+        // TODO check what happens when not found
+        m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
+    }
+
+    m_timeout = m_timeout_orig;
+    m_hiddenTimeout = m_hiddenTimeout_orig;
+    m_defaultEntryType = m_defaultEntryType_orig;
+    m_lookForOtherOs = m_lookForOtherOs_orig;
+    m_defaultEntry = m_defaultEntry_orig;
+    // qWarning() << m_defaultEntry<< m_defaultEntryType;
+    Q_EMIT dataChanged();
+}
+void GrubData::set()
+{
+    // qWarning() << "set was called";
+    // qWarning() << m_timeout;
+    // KAuth::Action readAction("org.kde.kcontrol.kcmgrub2.testaction");
+    // readAction.setHelperId("org.kde.kcontrol.kcmgrub2");
+    // KAuth::ExecuteJob *job = readAction.execute();
+    // if (!job->exec()) {
+    //     qDebug() << "KAuth returned an error code:" << job->error();
+    // } else {
+    //     QString contents = job->data()["contents"].toString();
+    // }
+    // qWarning() << "default entry type" << m_defaultEntryType;
+    Q_EMIT dataChanged();
 }
 
-bool GrubData::showMenu()
+void GrubData::save()
 {
-    return m_showMenu;
+    initCache();
+    if (m_defaultEntryType != m_defaultEntryType_orig) {
+        if (m_defaultEntry == DefaultEntryType::PreviouslyBooted) {
+            setValue("GRUB_DEFAULT", "saved");
+        } else {
+            // qWarning() << m_defaultEntry;
+            setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
+        }
+    } else if (m_defaultEntryType_orig == DefaultEntryType::Predefined && m_defaultEntry != m_defaultEntry_orig) {
+        // qWarning() << m_defaultEntry;
+        setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
+    }
+
+    KAuth::Action readAction("org.kde.kcontrol.kcmgrub2.save");
+    readAction.setHelperId("org.kde.kcontrol.kcmgrub2");
+    readAction.addArgument("homeDir", qgetenv("HOME"));
+    KAuth::ExecuteJob *job = readAction.execute();
+    if (!job->exec()) {
+        qWarning() << "KAuth returned an error code:" << job->error();
+    } else {
+        QString contents = job->data()["result"].toString();
+        qWarning() << "KAuth result:" << contents;
+    }
+    // qWarning() << m_defaultEntry_orig << "default entry orig";
+    readAll();
+    // qWarning() << m_defaultEntry_orig << "default entry orig";
 }
 
-bool GrubData::bootDefault()
+bool GrubData::setValue(QString key, QString val, QString readFileName)
 {
-    return m_bootDefaultAfter;
+    if (readFileName == "") {
+        readFileName = TEMPDATAFILE;
+    }
+    QFile readFile(readFileName);
+    // qWarning() << readFileName;
+    QString toWrite;
+    bool replaced = false;
+    if (!readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    QTextStream in(&readFile);
+
+    if (key == QString("GRUB_DEFAULT")) {
+        val.replace(QString(" >"), QString(">"));
+    }
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        QString originalLine = line;
+        // remove all empty spaces
+        line.remove(QChar(' '));
+
+        if (line.startsWith('#')) {
+            toWrite += QChar('\n') + originalLine;
+            continue;
+
+        } else if (line.startsWith(key + QChar('=')) && !replaced) {
+            line = key + QChar('=') + val;
+            toWrite += QChar('\n') + line;
+            replaced = true;
+            continue;
+        } else {
+            toWrite += QChar('\n') + line;
+        }
+    }
+    if (!replaced) {
+        toWrite += key + QChar('=') + val;
+    }
+    readFile.close();
+    if (!readFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return false;
+    }
+    // Remove newline character added at first
+    toWrite.remove(0, 1);
+    QTextStream out(&readFile);
+    out << toWrite;
+    readFile.close();
+    return true;
+}
+void GrubData::initCache()
+{
+    const QString PATH = qgetenv("HOME") + "/.local/share/grub-editor-cpp";
+    const QDir dataDir(PATH);
+    if (!dataDir.exists())
+        dataDir.mkpath(PATH);
+
+    QString filePath = PATH + "/grubToWrite.txt";
+    if (QFile::exists(filePath)) {
+        QFile::remove(filePath);
+    }
+
+    QFile::copy("/etc/default/grub", filePath);
+
+    // qWarning() << PATH;
+}
+void GrubData::setCurrentFile(const QString &fileName)
+{
+    m_currFileName = fileName;
+    QByteArray fileContents;
+    readAll();
 }
 
-float GrubData::grubTimeout()
+QString GrubData::getValue(const QString &key)
 {
-    qWarning() << "returned";
-    return m_grubTimeout;
+    return m_settings[key];
 }
-bool GrubData::lookForOtherOs()
+
+bool GrubData::isDirty()
 {
-    return m_lookForOtherOs;
+    return (m_timeout != m_timeout_orig) || (m_hiddenTimeout != m_hiddenTimeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig)
+        || (m_defaultEntryType != m_defaultEntryType_orig) || (m_defaultEntry != m_defaultEntry_orig);
 }
 
 void GrubData::readAll(){
     QByteArray fileContents;
     LoadOperations operations = NoOperation;
-    qWarning() << "File contents are being read";
+    // qWarning() << "File contents are being read";
 
     if (readFile("/boot/grub/grub.cfg", fileContents)) {
         parseEntries(QString::fromUtf8(fileContents.constData()));
     } else {
         operations |= MenuFile;
     }
-    if (readFile("/etc/default/grub", fileContents)) {
+    if (readFile(m_currFileName, fileContents)) {
         parseSettings(QString::fromUtf8(fileContents.constData()));
     } else {
         operations |= ConfigurationFile;

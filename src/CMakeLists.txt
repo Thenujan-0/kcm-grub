@@ -5,8 +5,7 @@ set(KCM_GRUB2_SRCS
     entry.cpp
     grubdata.cpp
 )
-
-
+add_subdirectory(helper)
 add_library(kcm_grub2 MODULE ${KCM_GRUB2_SRCS})
 
 kcmutils_generate_desktop_file(kcm_grub2)
@@ -19,7 +18,14 @@ target_link_libraries(kcm_grub2
     KF5::KIOGui
     KF5::NewStuff
     KF5::QuickAddons
+    KF5::AuthCore
+    KF5::KIOCore
+    KF5::KIOWidgets
+    KF5::KIOFileWidgets
+    Qt5::Test
 )
+
+add_subdirectory(tests)
 
 kpackage_install_package(package kcm_grub2 kcms)
 

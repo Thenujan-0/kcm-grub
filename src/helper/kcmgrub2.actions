@@ -1,0 +1,5 @@
+[org.kde.kcontrol.kcmgrub2.save]
+Name=Save configurations
+Description= Permissions are needed to save configurations
+Policy=auth_admin
+Persistence=session

@@ -8,30 +8,34 @@ QStringList getAllOsEntries();
 class GrubData : public QObject{
 
     Q_OBJECT
-    Q_PROPERTY(float grubTimeout READ grubTimeout)
-    // Q_PROPERTY(bool predefined READ predefined)
-    // Q_PROPERTY(bool previouslyBooted READ previouslyBooted)
-    // Q_PROPERTY(defaultEntryType defaultEntryType READ getDefaultEntryType)
+    Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
+    Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(QStringList osEntries READ getAllOsEntries);
-    Q_PROPERTY(bool showMenu READ showMenu)
-    Q_PROPERTY(bool bootDefault READ bootDefault)
-    // Q_PROPERTY(bool lookForOtherOs READ lookForOtherOs)
-    
-
-
+    Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
+    Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
+    Q_PROPERTY(QString defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
     QStringList bootEntries;
 
+    enum DefaultEntryType { Predefined = 0, PreviouslyBooted = 1 };
+    Q_ENUM(DefaultEntryType)
 
-    enum defaultEntryType{
-            Predefined = 0,
-            PreviouslyBooted = 1
-    };
-    Q_ENUM(defaultEntryType)
-
-    // Q_INVOKABLE void set(QString cob_osEntries , bool chb_showMenu);
+    Q_INVOKABLE void set();
+    bool isDirty();
+    void save();
+    bool setValue(QString key, QString val, QString readFileName = "");
+    void initCache();
+    void setCurrentFile(const QString &fileName);
+    QString getValue(const QString &key);
+signals:
+    void defaultEntryChanged();
+    void defaultEntryTypeChanged();
+    void timeoutChanged();
+    void hiddenTimeoutChanged();
+    void lookForOtherOsChanged();
+    void dataChanged();
 
 private:
     QString parseTitle(const QString &line);
@@ -39,27 +43,25 @@ private:
     bool readFile(const QString &filename, QByteArray &fileContents);
     void readAll();
     void parseSettings(const QString &config);
+
+    // Adds default values for keys that don't exist in /etc/default/grub
+    void addDefaultValues();
     void parseValues();
 
-    // void load();
-    // bool predefined();
-    // bool previouslyBooted();
-
-    // GrubData::defaultEntryType getDefaultEntryType();
     QStringList getAllOsEntries();
-    bool showMenu();
-    bool bootDefault();
-    float grubTimeout();
-    bool lookForOtherOs();
 
     QHash<QString, QString> m_settings;
 
-    bool m_bootDefaultAfter;
     bool m_lookForOtherOs;
-    float m_grubTimeout;
-    bool m_showMenu;
-    GrubData::defaultEntryType m_defaultEntryType;
-    QString m_grubDefault;
+    bool m_lookForOtherOs_orig;
+    float m_timeout;
+    float m_timeout_orig;
+    float m_hiddenTimeout;
+    float m_hiddenTimeout_orig;
+    DefaultEntryType m_defaultEntryType;
+    DefaultEntryType m_defaultEntryType_orig;
+    QString m_defaultEntry;
+    QString m_defaultEntry_orig;
     QList<Entry> m_osEntries;
     QStringList m_issues;
     QString m_currFileName;
