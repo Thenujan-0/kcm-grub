@@ -2,7 +2,7 @@
     "Categories": "Qt;KDE;X-KDE-settings-system;",
     "KPlugin": {
         "Description": "GRUB2",
-        "Icon": "gtk-add",
+        "Icon": "settings",
         "Name": "GRUB2",
         "ServiceTypes": [
             "KCModule"
@@ -12,4 +12,4 @@
     "X-KDE-ParentApp": "kcontrol",
     "X-KDE-System-Settings-Parent-Category": "session",
     "X-KDE-Weight": 10
-}
+}   
