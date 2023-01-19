@@ -25,11 +25,6 @@ Helper::Helper()
     qputenv("PATH", path.latin1());
 }
 
-// void Helper::set_value(const Qstring &fileName)
-// {
-//     QFile file(fileName);
-// }
-
 ActionReply Helper::executeCommand(const QStringList &command)
 {
     KProcess process;
