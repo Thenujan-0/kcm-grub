@@ -64,7 +64,6 @@ KCM.SimpleKCM {
                 if(checked){
                     rb_pre_defined.checked=false
                 }
-                console.log("previously :", kcm.grubData.defaultEntryType,DefaultEntry.PreviouslyBooted)
                 kcm.grubData.defaultEntryType = checked ? DefaultEntry.PreviouslyBooted : DefaultEntry.Predefined
                 kcm.settingsChanged()
             }
@@ -88,6 +87,12 @@ KCM.SimpleKCM {
             DoubleSpinBox{
                 id:grubTimeout
                 text: kcm.grubData.hiddenTimeout
+                onIncrease : {
+                    kcm.grubData.hiddenTimeout +=1
+                }
+                onDecrease: {
+                    kcm.grubData.hiddenTimeout -=1
+                }
 
             }
             
@@ -102,7 +107,7 @@ KCM.SimpleKCM {
                 text: "Show countdown timer"
                 checked: false
                 onClicked: {
-                    kcm.grubData.set()
+                    // kcm.grubData.set()
                 }
             }
         }
@@ -150,6 +155,7 @@ KCM.SimpleKCM {
                     if(checked){
                         immediately.checked=false
                         kcm.grubData.timeout = Number(timeout.text)
+                        kcm.settingsChanged()
                     }
                 }
 
@@ -182,7 +188,10 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: "Generated entries:"
             text: "Look for other Operating systems"
             checked: kcm.grubData.lookForOtherOs
-            onClicked: kcm.grubData.lookForOtherOs = checked
+            onClicked: {
+                kcm.grubData.lookForOtherOs = checked
+                kcm.settingsChanged()
+            }
         }
     }
 }
