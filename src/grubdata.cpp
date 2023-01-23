@@ -255,9 +255,19 @@ void GrubData::save()
         setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
     }
 
+    if (m_timeout != m_timeout_orig) {
+        setValue("GRUB_TIMEOUT", quoteWord(QString::number(m_timeout)));
+    }
+
+    if (m_lookForOtherOs != m_lookForOtherOs_orig) {
+        const QString value = m_lookForOtherOs ? "false" : "true";
+        setValue("GRUB_DISABLE_OS_PROBER", value);
+    }
+
     KAuth::Action readAction("org.kde.kcontrol.kcmgrub2.save");
     readAction.setHelperId("org.kde.kcontrol.kcmgrub2");
     readAction.addArgument("homeDir", qgetenv("HOME"));
+    readAction.addArgument("saveFile", m_currFileName);
     KAuth::ExecuteJob *job = readAction.execute();
     if (!job->exec()) {
         qWarning() << "KAuth returned an error code:" << job->error();

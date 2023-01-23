@@ -74,12 +74,13 @@ ActionReply Helper::save(QVariantMap args)
         reply.addData("result", "failed");
         return reply;
     }
+    const QString saveFile = args.value("saveFile").toString();
 
-    if (QFile::exists("/etc/default/grub")) {
-        QFile::remove("/etc/default/grub");
+    if (QFile::exists(saveFile)) {
+        QFile::remove(saveFile);
     }
 
-    bool sucess = QFile::copy(filePath, "/etc/default/grub");
+    bool sucess = QFile::copy(filePath, saveFile);
     reply.addData("result", sucess);
     return reply;
 }
