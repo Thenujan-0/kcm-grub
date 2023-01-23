@@ -5,15 +5,15 @@
 
 QStringList getAllOsEntries();
 
-class GrubData : public QObject{
-
+class GrubData : public QObject
+{
     Q_OBJECT
-    Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
-    Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(QStringList osEntries READ getAllOsEntries);
-    Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
-    Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
     Q_PROPERTY(QString defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
+    Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
+    Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
+    Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
+    Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
@@ -30,11 +30,6 @@ public:
     void setCurrentFile(const QString &fileName);
     QString getValue(const QString &key);
 signals:
-    void defaultEntryChanged();
-    void defaultEntryTypeChanged();
-    void timeoutChanged();
-    void hiddenTimeoutChanged();
-    void lookForOtherOsChanged();
     void dataChanged();
 
 private:
@@ -65,5 +60,4 @@ private:
     QList<Entry> m_osEntries;
     QStringList m_issues;
     QString m_currFileName;
-
 };
