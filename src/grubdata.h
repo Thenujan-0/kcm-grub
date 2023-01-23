@@ -35,7 +35,6 @@ signals:
 private:
     QString parseTitle(const QString &line);
     void parseEntries(const QString &line);
-    bool readFile(const QString &filename, QByteArray &fileContents);
     void readAll();
     void parseSettings(const QString &config);
 

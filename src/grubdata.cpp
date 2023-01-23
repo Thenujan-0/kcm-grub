@@ -25,23 +25,10 @@ GrubData::GrubData(QObject *parent)
 {
     readAll();
     // qWarning()<<"loaded everything here";
-    // for (const Entry &osEntry :qAsConst(m_osEntries)){
-    //     qWarning() <<osEntry.fullTitle();
-    // }
-    // qWarning()<<m_osEntries;
-}
-
-bool GrubData::readFile(const QString &fileName, QByteArray &fileContents){
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file for reading:" << fileName;
-        qDebug() << "Error code:" << file.error();
-        qDebug() << "Error description:" << file.errorString();
-        qDebug() << "The helper will now attempt to read this file.";
-        return false;
+    for (const Entry &osEntry : qAsConst(m_osEntries)) {
+        qWarning() << osEntry.fullTitle() << osEntry.fullNumTitle() << osEntry.type() << osEntry.ancestors().count();
     }
-    fileContents = file.readAll();
-    return true;
+    // qWarning()<<m_osEntries;
 }
 
 QString GrubData::parseTitle(const QString &line){
@@ -369,17 +356,19 @@ bool GrubData::isDirty()
 }
 
 void GrubData::readAll(){
-    QByteArray fileContents;
+    optional<QString> fileContents;
     LoadOperations operations = NoOperation;
     // qWarning() << "File contents are being read";
 
-    if (readFile("/boot/grub/grub.cfg", fileContents)) {
-        parseEntries(QString::fromUtf8(fileContents.constData()));
+    fileContents = readFile("/boot/grub/grub.cfg");
+    if (fileContents.has_value()) {
+        parseEntries(fileContents.value());
     } else {
         operations |= MenuFile;
     }
-    if (readFile(m_currFileName, fileContents)) {
-        parseSettings(QString::fromUtf8(fileContents.constData()));
+    fileContents = readFile(m_currFileName);
+    if (fileContents.has_value()) {
+        parseSettings(fileContents.value());
     } else {
         operations |= ConfigurationFile;
     }

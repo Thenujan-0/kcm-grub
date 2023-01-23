@@ -21,6 +21,11 @@
 //Qt
 #include <QFlags>
 
+// std
+#include <optional>
+
+using std::optional;
+
 enum LoadOperation {
     NoOperation = 0x0,
     MenuFile = 0x1,
@@ -35,5 +40,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LoadOperations)
 
 QString quoteWord(const QString &word);
 QString unquoteWord(const QString &word);
-
+optional<QString> readFile(const QString &fileName);
+bool copyTo(const QString &file, const QString &destination);
 #endif

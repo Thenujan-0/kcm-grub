@@ -19,11 +19,18 @@
 #include "common.h"
 
 //Qt
+#include <QDebug>
+#include <QFile>
 #include <QTextStream>
 
 //KDE
 #include <KProcess>
 #include <KShell>
+
+// std
+#include <optional>
+
+using std::optional;
 
 QString quoteWord(const QString &word)
 {
@@ -116,4 +123,27 @@ QString unquoteWord(const QString &word)
         }
     }
     return QString();
+}
+
+optional<QString> readFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open file for reading:" << fileName;
+        qDebug() << "Error code:" << file.error();
+        qDebug() << "Error description:" << file.errorString();
+        qDebug() << "The helper will now attempt to read this file.";
+        return {};
+    }
+    QString fileContents = file.readAll();
+    return fileContents;
+}
+
+bool copyTo(const QString &file, const QString &destination)
+{
+    if (QFile::exists(destination)) {
+        QFile::remove(destination);
+    }
+
+    return QFile::copy(file, destination);
 }
