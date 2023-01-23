@@ -1,3 +1,5 @@
 build/
 .clang-format
 kcm_grub2.cpp
+.vscode
+src/tests/testCaseFiles/temp.txt
