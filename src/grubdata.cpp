@@ -243,8 +243,9 @@ void GrubData::save()
 {
     initCache();
     if (m_defaultEntryType != m_defaultEntryType_orig) {
-        if (m_defaultEntry == DefaultEntryType::PreviouslyBooted) {
+        if (m_defaultEntryType == DefaultEntryType::PreviouslyBooted) {
             setValue("GRUB_DEFAULT", "saved");
+            // TODO check if grub_saved_default is needed here
         } else {
             // qWarning() << m_defaultEntry;
             setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
@@ -293,28 +294,29 @@ bool GrubData::setValue(QString key, QString val, QString readFileName)
         // remove all empty spaces
         line.remove(QChar(' '));
 
-        if (line.startsWith('#')) {
-            toWrite += QChar('\n') + originalLine;
+        if (line.startsWith(QChar('#') + key)) {
+            toWrite += key + QChar('=') + val + QChar('\n');
+            replaced = true;
+        } else if (line.startsWith('#')) {
+            toWrite += originalLine + QChar('\n');
             continue;
 
         } else if (line.startsWith(key + QChar('=')) && !replaced) {
             line = key + QChar('=') + val;
-            toWrite += QChar('\n') + line;
+            toWrite += line + QChar('\n');
             replaced = true;
             continue;
         } else {
-            toWrite += QChar('\n') + line;
+            toWrite += line + QChar('\n');
         }
     }
     if (!replaced) {
-        toWrite += key + QChar('=') + val;
+        toWrite += key + QChar('=') + val + QChar('\n');
     }
     readFile.close();
     if (!readFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
     }
-    // Remove newline character added at first
-    toWrite.remove(0, 1);
     QTextStream out(&readFile);
     out << toWrite;
     readFile.close();
@@ -333,7 +335,7 @@ void GrubData::initCache()
         QFile::remove(filePath);
     }
 
-    QFile::copy("/etc/default/grub", filePath);
+    QFile::copy(m_currFileName, filePath);
 
     // qWarning() << PATH;
 }
@@ -393,7 +395,9 @@ void GrubData::readAll(){
 QStringList GrubData::getAllOsEntries(){
     QStringList entries;
     for (const Entry &osEntry :qAsConst(m_osEntries)){
-        entries <<osEntry.fullTitle();
+        if (osEntry.type() == Entry::Menuentry) {
+            entries << osEntry.fullTitle();
+        }
     }
     return entries;
 }
