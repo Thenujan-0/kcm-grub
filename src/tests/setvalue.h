@@ -5,4 +5,6 @@ class TestSetValue : public QObject
     Q_OBJECT
 private slots:
     void simple();
+    void replaceCommented();
+    void addKey();
 };

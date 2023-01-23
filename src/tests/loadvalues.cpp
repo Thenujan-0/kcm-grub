@@ -1,11 +1,11 @@
 #include "loadvalues.h"
-#include <filesystem>
+
+#include "testutils.h"
 #include <grubdata.h>
 
-#define compareValue(key, value) compareValue_(_data, key, value);
+#include <filesystem>
 
-QString cwd = QString::fromStdString(std::filesystem::current_path().parent_path().string());
-const QString PATH = "/home/thenujan/Desktop/Code/kcm-grub/";
+#define compareValue(key, value) compareValue_(_data, key, value);
 
 void compareValue_(GrubData *data, QString key, QString val)
 {
@@ -16,7 +16,7 @@ void compareValue_(GrubData *data, QString key, QString val)
 void TestLoadValues::defaultValues()
 {
     auto _data = new GrubData();
-    const QString filePath = cwd + "/src/tests/testCaseFiles/commentedLineTest.txt";
+    const QString filePath = getTestFilesDir() + "/commentedLineTest.txt";
     QVERIFY(QFile::exists(filePath));
     _data->setCurrentFile(filePath);
     compareValue("GRUB_DEFAULT", "0");
@@ -28,7 +28,7 @@ void TestLoadValues::defaultValues()
 void TestLoadValues::loadsAllValuesCorrectly()
 {
     auto _data = new GrubData();
-    const QString filePath = cwd + "/src/tests/testCaseFiles/grub.txt";
+    const QString filePath = getTestFilesDir() + "/grub.txt";
     QVERIFY(QFile::exists(filePath));
     _data->setCurrentFile(filePath);
     compareValue("GRUB_TIMEOUT", "\"11\"");
