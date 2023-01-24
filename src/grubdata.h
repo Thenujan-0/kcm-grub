@@ -8,8 +8,8 @@ QStringList getAllOsEntries();
 class GrubData : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList osEntries READ getAllOsEntries);
-    Q_PROPERTY(QString defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
+    Q_PROPERTY(QList<Entry *> osEntries MEMBER m_osEntries CONSTANT);
+    Q_PROPERTY(Entry *defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
     Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
@@ -42,7 +42,8 @@ private:
     void addDefaultValues();
     void parseValues();
 
-    QStringList getAllOsEntries();
+    void deleteEntries();
+    Entry *findEntry(QString value);
 
     QHash<QString, QString> m_settings;
 
@@ -54,9 +55,9 @@ private:
     float m_hiddenTimeout_orig;
     DefaultEntryType m_defaultEntryType;
     DefaultEntryType m_defaultEntryType_orig;
-    QString m_defaultEntry;
-    QString m_defaultEntry_orig;
-    QList<Entry> m_osEntries;
+    Entry *m_defaultEntry;
+    Entry *m_defaultEntry_orig;
+    QList<Entry *> m_osEntries;
     QStringList m_issues;
     QString m_currFileName;
 };

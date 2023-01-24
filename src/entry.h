@@ -20,10 +20,14 @@
 
 //Qt
 #include <QList>
+#include <QObject>
 #include <QString>
 
-class Entry
+class Entry : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QString title READ fullTitle CONSTANT);
+
 public:
     struct Title {
         QString str;
@@ -34,6 +38,7 @@ public:
         Menuentry,
         Submenu
     };
+    Q_ENUM(Type);
 
     explicit Entry(const QString &strTitle = QString(), int numTitle = -1, Entry::Type type = Entry::Invalid, int level = -1);
 

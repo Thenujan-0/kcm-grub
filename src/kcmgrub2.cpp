@@ -28,6 +28,7 @@ KcmGrub2::KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVari
     , m_data(new GrubData)
 {
     qmlRegisterAnonymousType<GrubData>("", 1);
+    qmlRegisterAnonymousType<Entry>("", 1);
     qmlRegisterUncreatableType<GrubData>("org.kde.plasma.kcm.data", 1, 0, "DefaultEntry", QStringLiteral("Only for enums"));
     setButtons(Apply);
 }

@@ -23,12 +23,8 @@ GrubData::GrubData(QObject *parent)
     :m_issues(QStringList()),
     m_currFileName(QString("/etc/default/grub"))
 {
+    Q_UNUSED(parent);
     readAll();
-    // qWarning()<<"loaded everything here";
-    for (const Entry &osEntry : qAsConst(m_osEntries)) {
-        qWarning() << osEntry.fullTitle() << osEntry.fullNumTitle() << osEntry.type() << osEntry.ancestors().count();
-    }
-    // qWarning()<<m_osEntries;
 }
 
 QString GrubData::parseTitle(const QString &line){
@@ -72,6 +68,14 @@ QString GrubData::parseTitle(const QString &line){
     return entry;
 }
 
+void GrubData::deleteEntries()
+{
+    for (const Entry *osEntry : qAsConst(m_osEntries)) {
+        delete osEntry;
+    }
+    m_osEntries.clear();
+}
+
 void GrubData::parseEntries(const QString &config){
     bool inEntry = false;
     int menuLvl = 0;
@@ -81,7 +85,7 @@ void GrubData::parseEntries(const QString &config){
     QString word, configStr = config;
     QTextStream stream(&configStr, QIODevice::ReadOnly | QIODevice::Text);
 
-    m_osEntries.clear();
+    deleteEntries();
     while (!stream.atEnd()) {
         //Read the first word of the line
         stream >> word;
@@ -93,12 +97,12 @@ void GrubData::parseEntries(const QString &config){
             if (inEntry) {
                 qCritical() << "Malformed configuration file! Aborting entries' parsing.";
                 qDebug() << "A 'menuentry' directive was detected inside the scope of a menuentry.";
-                m_osEntries.clear();
+                deleteEntries();
                 return;
             }
-            Entry entry(parseTitle(stream.readLine()), levelCount.at(menuLvl), Entry::Menuentry, menuLvl);
+            Entry *entry = new Entry(parseTitle(stream.readLine()), levelCount.at(menuLvl), Entry::Menuentry, menuLvl);
             if (menuLvl > 0) {
-                entry.setAncestors(submenus);
+                entry->setAncestors(submenus);
             }
             m_osEntries.append(entry);
             levelCount[menuLvl]++;
@@ -108,15 +112,15 @@ void GrubData::parseEntries(const QString &config){
             if (inEntry) {
                 qCritical() << "Malformed configuration file! Aborting entries' parsing.";
                 qDebug() << "A 'submenu' directive was detected inside the scope of a menuentry.";
-                m_osEntries.clear();
+                deleteEntries();
                 return;
             }
-            Entry entry(parseTitle(stream.readLine()), levelCount.at(menuLvl), Entry::Submenu, menuLvl);
+            Entry *entry = new Entry(parseTitle(stream.readLine()), levelCount.at(menuLvl), Entry::Submenu, menuLvl);
             if (menuLvl > 0) {
-                entry.setAncestors(submenus);
+                entry->setAncestors(submenus);
             }
             m_osEntries.append(entry);
-            submenus.append(entry.title());
+            submenus.append(entry->title());
             levelCount[menuLvl]++;
             levelCount.append(0);
             menuLvl++;
@@ -125,11 +129,11 @@ void GrubData::parseEntries(const QString &config){
             if (!inEntry) {
                 qCritical() << "Malformed configuration file! Aborting entries' parsing.";
                 qDebug() << "A 'linux' directive was detected outside the scope of a menuentry.";
-                m_osEntries.clear();
+                deleteEntries();
                 return;
             }
             stream >> word;
-            m_osEntries.last().setKernel(word);
+            m_osEntries.last()->setKernel(word);
         } else if (word == QLatin1String("}")) {
             if (inEntry) {
                 inEntry = false;
@@ -177,6 +181,22 @@ void GrubData::addDefaultValues()
         }
     }
 }
+
+Entry *GrubData::findEntry(QString value)
+{
+    QList<Entry *>::iterator i;
+    for (i = m_osEntries.begin(); i != m_osEntries.end(); ++i) {
+        Entry *entry = *i;
+        if (entry->fullTitle() == value || entry->fullNumTitle() == value) {
+            return entry;
+        }
+    }
+
+    Entry *invalidEntry = new Entry(value, -1, Entry::Type::Invalid, -1);
+    m_osEntries.append(invalidEntry);
+    return invalidEntry;
+}
+
 void GrubData::parseValues()
 {
     m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
@@ -187,7 +207,7 @@ void GrubData::parseValues()
     if (val == "saved") {
         m_defaultEntryType_orig = GrubData::DefaultEntryType::PreviouslyBooted;
     } else {
-        m_defaultEntry_orig = val;
+        m_defaultEntry_orig = findEntry(val);
         m_defaultEntryType_orig = GrubData::DefaultEntryType::Predefined;
     }
 
@@ -235,11 +255,11 @@ void GrubData::save()
             // TODO check if grub_saved_default is needed here
         } else {
             // qWarning() << m_defaultEntry;
-            setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
+            setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry->fullNumTitle()));
         }
     } else if (m_defaultEntryType_orig == DefaultEntryType::Predefined && m_defaultEntry != m_defaultEntry_orig) {
         // qWarning() << m_defaultEntry;
-        setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry));
+        setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry->fullNumTitle()));
     }
 
     if (m_timeout != m_timeout_orig) {
@@ -352,7 +372,7 @@ QString GrubData::getValue(const QString &key)
 bool GrubData::isDirty()
 {
     return (m_timeout != m_timeout_orig) || (m_hiddenTimeout != m_hiddenTimeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig)
-        || (m_defaultEntryType != m_defaultEntryType_orig) || (m_defaultEntry != m_defaultEntry_orig);
+        || (m_defaultEntryType != m_defaultEntryType_orig) || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle());
 }
 
 void GrubData::readAll(){
@@ -389,14 +409,4 @@ void GrubData::readAll(){
     // } else {
     //     operations |= Locales;
     // }
-}
-
-QStringList GrubData::getAllOsEntries(){
-    QStringList entries;
-    for (const Entry &osEntry :qAsConst(m_osEntries)){
-        if (osEntry.type() == Entry::Menuentry) {
-            entries << osEntry.fullTitle();
-        }
-    }
-    return entries;
 }

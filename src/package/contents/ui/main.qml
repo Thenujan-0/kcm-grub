@@ -45,10 +45,12 @@ KCM.SimpleKCM {
             QQC2.ComboBox{
                 id:cob_os_entries
                 model:kcm.grubData.osEntries
+                textRole: "title"
+                currentIndex:kcm.grubData.osEntries.indexOf(kcm.grubData.defaultEntry)
 
                 onActivated: {
                     if (rb_pre_defined.checked){
-                        kcm.grubData.defaultEntry = cob_os_entries.currentText
+                        kcm.grubData.defaultEntry = kcm.grubData.osEntries[cob_os_entries.currentIndex]
                     }
                     kcm.settingsChanged()
                 }
@@ -87,10 +89,10 @@ KCM.SimpleKCM {
             DoubleSpinBox{
                 id:grubTimeout
                 text: kcm.grubData.hiddenTimeout
-                onIncrease : {
+                onIncrease : function(){
                     kcm.grubData.hiddenTimeout +=1
                 }
-                onDecrease: {
+                onDecrease: function(){
                     kcm.grubData.hiddenTimeout -=1
                 }
 
