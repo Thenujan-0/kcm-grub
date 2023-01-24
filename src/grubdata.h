@@ -13,6 +13,7 @@ class GrubData : public QObject
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
     Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
+    Q_PROPERTY(QString timeoutStyle MEMBER m_timeoutStyle NOTIFY dataChanged);
     Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
 
 public:
@@ -22,7 +23,6 @@ public:
     enum DefaultEntryType { Predefined = 0, PreviouslyBooted = 1 };
     Q_ENUM(DefaultEntryType)
 
-    Q_INVOKABLE void set();
     bool isDirty();
     void save();
     bool setValue(QString key, QString val, QString readFileName = "");
@@ -53,6 +53,8 @@ private:
     float m_timeout_orig;
     float m_hiddenTimeout;
     float m_hiddenTimeout_orig;
+    QString m_timeoutStyle;
+    QString m_timeoutStyle_orig;
     DefaultEntryType m_defaultEntryType;
     DefaultEntryType m_defaultEntryType_orig;
     Entry *m_defaultEntry;

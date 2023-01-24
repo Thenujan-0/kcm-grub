@@ -107,9 +107,16 @@ KCM.SimpleKCM {
             QQC2.CheckBox{
                 Layout.leftMargin: Kirigami.Units.largeSpacing *3
                 text: "Show countdown timer"
-                checked: false
+                checked: kcm.grubData.timeoutStyle == "countdown"
                 onClicked: {
-                    // kcm.grubData.set()
+                    if (!chb_bootDefault.checked){
+                        return
+                    }
+                    if(checked){
+                        kcm.grubData.timeoutStyle="countdown"
+                    }else{
+                        kcm.grubData.timeoutStyle="hidden"
+                    }
                 }
             }
         }

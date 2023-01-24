@@ -199,11 +199,16 @@ Entry *GrubData::findEntry(QString value)
 
 void GrubData::parseValues()
 {
-    m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
-    // qWarning() << m_timeout_orig << "timeout" << unquoteWord(m_settings["GRUB_TIMEOUT"]);
+    m_timeoutStyle_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT_STYLE"));
+    if (m_timeoutStyle_orig == "menu") {
+        m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
+    } else {
+        m_hiddenTimeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
+        qWarning() << "HIDDEN TIMEOUT" << m_hiddenTimeout_orig;
+    }
 
     QString val = unquoteWord(m_settings.value("GRUB_DEFAULT"));
-    // qWarning() <<val << "GRUB_DEFAULT";
+
     if (val == "saved") {
         m_defaultEntryType_orig = GrubData::DefaultEntryType::PreviouslyBooted;
     } else {
@@ -213,37 +218,16 @@ void GrubData::parseValues()
 
     if (m_settings.contains("GRUB_HIDDEN_TIMEOUT")) {
         m_hiddenTimeout_orig = unquoteWord(m_settings["GRUB_HIDDEN_TIMEOUT"]).toFloat();
-    } else {
-        m_hiddenTimeout_orig = 0;
-    }
-    if (m_settings.contains("GRUB_DISABLE_OS_PROBER")) {
-        // TODO check what happens when not found
-        m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
     }
 
+    m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
+
     m_timeout = m_timeout_orig;
+    m_timeoutStyle = m_timeoutStyle_orig;
     m_hiddenTimeout = m_hiddenTimeout_orig;
     m_defaultEntryType = m_defaultEntryType_orig;
     m_lookForOtherOs = m_lookForOtherOs_orig;
     m_defaultEntry = m_defaultEntry_orig;
-    // qWarning() << m_defaultEntry<< m_defaultEntryType;
-    Q_EMIT dataChanged();
-}
-
-void GrubData::set()
-{
-    // qWarning() << "set was called";
-    // qWarning() << m_timeout;
-    // KAuth::Action readAction("org.kde.kcontrol.kcmgrub2.testaction");
-    // readAction.setHelperId("org.kde.kcontrol.kcmgrub2");
-    // KAuth::ExecuteJob *job = readAction.execute();
-    // if (!job->exec()) {
-    //     qDebug() << "KAuth returned an error code:" << job->error();
-    // } else {
-    //     QString contents = job->data()["contents"].toString();
-    // }
-    // qWarning() << "default entry type" << m_defaultEntryType;
-    Q_EMIT dataChanged();
 }
 
 void GrubData::save()
