@@ -41,6 +41,9 @@ public:
     Q_ENUM(Type);
 
     explicit Entry(const QString &strTitle = QString(), int numTitle = -1, Entry::Type type = Entry::Invalid, int level = -1);
+    Entry(const Entry &rhs);
+    Entry *operator=(const Entry &rhs);
+    ~Entry();
 
     Entry::Title title() const;
     QString prettyTitle() const;
@@ -66,5 +69,8 @@ private:
     QList<Entry::Title> m_ancestors;
     QString m_kernel;
 };
+
+Q_DECLARE_METATYPE(Entry);
+Q_DECLARE_METATYPE(Entry::Type);
 
 #endif

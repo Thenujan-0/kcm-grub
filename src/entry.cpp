@@ -21,12 +21,27 @@
 //Project
 #include "common.h"
 
+// Qt
+#include <QDebug>
+
 Entry::Entry(const QString &strTitle, int numTitle, Entry::Type type, int level)
 {
     m_title.str = strTitle;
     m_title.num = numTitle;
     m_type = type;
     m_level = level;
+}
+
+Entry *Entry::operator=(const Entry &rhs)
+{
+    Entry *entry = new Entry(rhs.title().str, rhs.title().num, rhs.type(), rhs.level());
+    entry->setAncestors(rhs.ancestors());
+    qWarning("equal operator called on Entry");
+    return entry;
+}
+
+Entry::~Entry()
+{
 }
 
 Entry::Title Entry::title() const
