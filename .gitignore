@@ -3,3 +3,5 @@ build/
 kcm_grub2.cpp
 .vscode
 src/tests/testCaseFiles/temp.txt
+.kdev4
+*.kdev4
