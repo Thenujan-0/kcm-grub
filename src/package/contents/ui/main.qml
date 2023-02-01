@@ -142,9 +142,11 @@ KCM.SimpleKCM {
                 text: kcm.grubData.hiddenTimeout
                 onIncrease : function(){
                     kcm.grubData.hiddenTimeout +=1
+                    kcm.settingsChanged()
                 }
                 onDecrease: function(){
                     kcm.grubData.hiddenTimeout -=1
+                    kcm.settingsChanged()
                 }
 
             }
@@ -224,8 +226,14 @@ KCM.SimpleKCM {
             DoubleSpinBox{
                 id:timeout
                 text: kcm.grubData.timeout.toString()
-                onIncrease: function(){ kcm.grubData.timeout += 1 }
-                onDecrease: function(){ kcm.grubData.timeout -= 1 }
+                onIncrease: function(){
+                    kcm.grubData.timeout += 1
+                    kcm.settingsChanged()
+                }
+                onDecrease: function(){
+                    kcm.grubData.timeout -= 1
+                    kcm.settingsChanged()
+                }
 
                 onEditFinished: {
                     if(after.checked){
