@@ -1,4 +1,6 @@
 
+#include <QDBusConnection>
+#include <QDBusMessage>
 #include <QDebug>
 #include <QDir>
 #include <QEventLoop>
@@ -15,6 +17,8 @@
 #include <KIO/CopyJob>
 #include <KJob>
 
+#include <unistd.h>
+
 QString HOME = qgetenv("HOME");
 
 static const QString TEMPDATAFILE = HOME + QString("/.local/share/grub-editor-cpp/grubToWrite.txt");
@@ -24,7 +28,21 @@ GrubData::GrubData(QObject *parent)
     m_currFileName(QString("/etc/default/grub"))
 {
     Q_UNUSED(parent);
+
+    QDBusConnection::sessionBus().registerService("org.kde.kcontrol.kcmgrub");
+    QDBusConnection::sessionBus().registerObject("/internal", this, QDBusConnection::ExportAllSlots);
+
     readAll();
+}
+bool GrubData::updateCommandOutput(QString text)
+{
+    Q_EMIT updateOutput(text);
+    return true;
+}
+
+void GrubData::emitSavingStarted()
+{
+    Q_EMIT savingStarted();
 }
 
 QString GrubData::parseTitle(const QString &line){
@@ -199,6 +217,9 @@ Entry *GrubData::findEntry(QString value)
 
 void GrubData::parseValues()
 {
+    // Add default value
+    m_hiddenTimeout_orig = 0;
+
     m_timeoutStyle_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT_STYLE"));
     if (m_timeoutStyle_orig == "menu") {
         m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
@@ -217,6 +238,7 @@ void GrubData::parseValues()
     }
 
     if (m_settings.contains("GRUB_HIDDEN_TIMEOUT")) {
+        qWarning() << "Use of deprecated GRUB_HIDDEN_TIMEOUT";
         m_hiddenTimeout_orig = unquoteWord(m_settings["GRUB_HIDDEN_TIMEOUT"]).toFloat();
     }
 
@@ -255,17 +277,23 @@ void GrubData::save()
         setValue("GRUB_DISABLE_OS_PROBER", value);
     }
 
-    KAuth::Action readAction("org.kde.kcontrol.kcmgrub2.save");
-    readAction.setHelperId("org.kde.kcontrol.kcmgrub2");
-    readAction.addArgument("homeDir", qgetenv("HOME"));
-    readAction.addArgument("saveFile", m_currFileName);
-    KAuth::ExecuteJob *job = readAction.execute();
-    if (!job->exec()) {
-        qWarning() << "KAuth returned an error code:" << job->error();
-    } else {
-        QString contents = job->data()["result"].toString();
+    KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
+    saveAction.setHelperId("org.kde.kcontrol.kcmgrub2");
+    saveAction.addArgument("homeDir", qgetenv("HOME"));
+    saveAction.addArgument("saveFile", m_currFileName);
+    saveAction.addArgument("euid", geteuid());
+    saveAction.addArgument("busAddress", qgetenv("DBUS_SESSION_BUS_ADDRESS"));
+    KAuth::ExecuteJob *job = saveAction.execute();
+    job->start();
+    connect(job, &KAuth::ExecuteJob::result, this, [this, job]() {
+        qWarning() << "job finished";
+        QString contents = job->data()["fakeresult"].toString();
+        QString contents2 = job->data()["exitCode"].toString();
         qWarning() << "KAuth result:" << contents;
-    }
+        qWarning() << "KAuth exitCode:" << contents2;
+        Q_EMIT savingFinished();
+    });
+
     readAll();
 }
 

@@ -1,6 +1,8 @@
 #pragma once
+#include <QDBusAbstractAdaptor>
 #include <QHash>
 #include <QObject>
+
 #include <entry.h>
 
 QStringList getAllOsEntries();
@@ -8,6 +10,7 @@ QStringList getAllOsEntries();
 class GrubData : public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.kde.kcontrol.kcmgrub")
     Q_PROPERTY(QList<Entry *> osEntries MEMBER m_osEntries CONSTANT);
     Q_PROPERTY(Entry *defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
@@ -29,8 +32,17 @@ public:
     void initCache();
     void setCurrentFile(const QString &fileName);
     QString getValue(const QString &key);
+
 signals:
     void dataChanged();
+    void error(const QString &message);
+    void savingStarted();
+    void updateOutput(QString text);
+    void savingFinished();
+
+public Q_SLOTS:
+    bool updateCommandOutput(QString text);
+    void emitSavingStarted();
 
 private:
     QString parseTitle(const QString &line);

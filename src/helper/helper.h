@@ -3,6 +3,7 @@
 
 // KDE
 #include <KAuth/ActionReply>
+
 using namespace KAuth;
 
 class Helper : public QObject
@@ -14,6 +15,7 @@ public:
 private:
     ActionReply executeCommand(const QStringList &command);
     // bool setLang(const QString &lang);
+    // void updateGrub(QDBusConnection bus,ActionReply reply);
 public Q_SLOTS:
     ActionReply save(QVariantMap args);
 

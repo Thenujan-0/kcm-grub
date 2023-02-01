@@ -5,7 +5,7 @@ set(kcmgrub2helper_SRCS helper.cpp)
 
 # Build & Link
 add_executable(kcmgrub2helper ${kcmgrub2helper_SRCS})
-target_link_libraries(kcmgrub2helper KF5::AuthCore KF5::I18n)
+target_link_libraries(kcmgrub2helper KF5::AuthCore KF5::I18n Qt5::DBus)
 
 # Install
 install(TARGETS kcmgrub2helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})

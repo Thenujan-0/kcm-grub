@@ -50,6 +50,95 @@ KCM.SimpleKCM {
                 errorMessage.actions = [fixItAction]
             }
     }
+    Kirigami.OverlaySheet {
+        id: sheetSavingProgress
+        property bool saving :false
+        property int spacing :Kirigami.Units.largeSpacing
+
+        contentItem:Item{
+
+            implicitHeight: overlayMainlabel.implicitHeight + overlayProgressBar.implicitHeight + overlayButton.implicitHeight + sheetScrollView.implicitHeight + sheetSavingProgress.spacing * 3
+            implicitWidth: sheetLabel.visible && (sheetLabel.implicitWidth > 300) ? sheetLabel.implicitWidth : 300
+
+            QQC2.Label {
+                id:overlayMainlabel
+                Layout.fillWidth: true
+                anchors.top:parent.top
+                text: "Saving changes please wait!"
+            }
+            QQC2.ProgressBar {
+                id:overlayProgressBar
+                visible: sheetSavingProgress.saving
+                anchors.top:overlayMainlabel.bottom
+                anchors.topMargin:sheetSavingProgress.spacing
+                anchors.left: parent.left
+                anchors.right: parent.right
+                indeterminate: true
+            }
+
+            QQC2.Button{
+                id:overlayButton
+                text: "Show more details"
+                anchors.top:overlayProgressBar.bottom
+                anchors.topMargin:sheetSavingProgress.spacing
+                anchors.left: parent.left
+                anchors.right: parent.right
+                
+                onClicked: {
+                    if (sheetScrollView.visible){
+                        sheetScrollView.visible = false
+
+                        text="Show more details"
+                    }
+                    else{
+                        sheetScrollView.visible = true
+                        text= "Hide more details"
+                    }
+                }
+            }
+            QQC2.ScrollView{
+                id:sheetScrollView
+                visible: false
+                implicitHeight: visible? 150 : 0
+                anchors.top :overlayButton.bottom
+                anchors.topMargin:sheetSavingProgress.spacing
+                anchors.bottom:parent.bottom
+                Layout.fillWidth: true
+                clip:true
+
+
+                background:Rectangle{
+                    id: rect
+                    color:Kirigami.Theme.alternateBackgroundColor
+                }
+                
+                QQC2.Label{
+                    id:sheetLabel
+                    
+                    Connections {
+                        target: kcm.grubData
+                        function onSavingStarted(){
+                            sheetSavingProgress.open()
+                            sheetLabel.text = ""
+                            sheetSavingProgress.saving = true
+                        }
+
+                        function onSavingFinished(){
+                            overlayMainlabel.text = "Settings have been saved successfully"
+                            sheetSavingProgress.saving = false
+                        }
+                    }
+                    
+                    Connections {
+                        target: kcm.grubData
+                        function onUpdateOutput(text){
+                            sheetLabel.text += text
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Kirigami.OverlaySheet{
         id:sheetOverrideWarning
