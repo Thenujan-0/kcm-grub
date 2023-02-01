@@ -15,6 +15,8 @@ import org.kde.plasma.kcm.data 1.0
 
 KCM.SimpleKCM {
     id: root
+    implicitWidth:Kirigami.Units.largeSpacing * 100
+    implicitHeight:Kirigami.Units.largeSpacing *70
     header: Kirigami.InlineMessage {
         id: errorMessage
         showCloseButton: true
