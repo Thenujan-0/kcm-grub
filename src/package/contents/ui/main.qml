@@ -17,9 +17,63 @@ KCM.SimpleKCM {
     id: root
     header: Kirigami.InlineMessage {
         id: errorMessage
-        type: Kirigami.MessageType.Error
         showCloseButton: true
+
+        Connections {
+            target: kcm.grubData
+            function onError(message){
+                errorMessage.type = Kirigami.MessageType.Error
+                errorMessage.visible = true
+                errorMessage.text = message
+            }
+        }
+
+        property var fixItAction: Kirigami.Action {
+                property string fileName
+                text: i18n("Learn more")
+                icon.name: "help-hint"
+                onTriggered: {
+                    errorMessage.visible = false
+                    sheetOverrideWarning.open()
+                }
+            }
+        
+        Component.onCompleted: 
+        {
+            if (kcm.grubData.lookForOtherOs){
+                errorMessage.type = Kirigami.MessageType.Warning
+                errorMessage.visible = true
+                errorMessage.text = i18nd("kcm_grub2","<html><style type=\"text/css\"></style>As you have \"look for other operating systems\" enabled,"+ 
+                    " Your menu related settings (timeout , show behavior) might get overridden</html>");
+            }
+
+                errorMessage.actions = [fixItAction]
+            }
     }
+
+    Kirigami.OverlaySheet{
+        id:sheetOverrideWarning
+        header:QQC2.Label{
+            text:"Details on override behavior of \"Look for other OS\""
+        }
+        QQC2.Label{
+            text:"If you have \"look for other os\" enabled, It will override some of your settings."+
+                "\nThis is a feature to avoid the user from getting into a state where he cannot change grub settings"+
+                "\nIf you have set the timeout before showing the menu to 0, It will automatically set it to 10" +
+                "\nIf you have set a timeout before showing menu (hide menu for), It will be removed"
+            wrapMode:Qt.WordWrap
+
+        }
+        footer:RowLayout{
+            QQC2.Button{
+                text: "Ok"
+                onClicked: {
+                    sheetOverrideWarning.close()
+                }
+            }
+        }
+    }
+
     Kirigami.FormLayout{
         RowLayout{
             Kirigami.FormData.label:"default entry:"
