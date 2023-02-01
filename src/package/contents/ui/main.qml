@@ -89,12 +89,9 @@ KCM.SimpleKCM {
                         rb_previously_booted.checked=false
                     }
                     kcm.grubData.defaultEntryType = checked ? DefaultEntry.Predefined : DefaultEntry.PreviouslyBooted
-                    kcm.grubData.defaultEntry = cob_os_entries.currentText;
-                    console.log(cob_os_entries.currentText,kcm.grubData.defaultEntry)
+                    kcm.grubData.defaultEntry = kcm.grubData.osEntries[cob_os_entries.currentIndex];
                     kcm.settingsChanged()
-
                 }
-
             }
             QQC2.ComboBox{
                 id:cob_os_entries
