@@ -2,7 +2,7 @@
     "Categories": "Qt;KDE;X-KDE-settings-system;",
     "KPlugin": {
         "Description": "GRUB2",
-        "Icon": "settings",
+        "Icon": "configure",
         "Name": "GRUB2",
         "ServiceTypes": [
             "KCModule"

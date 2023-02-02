@@ -29,14 +29,14 @@ Item{
         id:addButton
         z:1
         anchors.right:reduceButton.left
-        icon.name: "add"
+        icon.name: "list-add"
         onClicked: onIncrease()
     }
     QQC2.ToolButton{
         id:reduceButton
         z:1
         anchors.right:textField.right
-        icon.name: "remove"
+        icon.name: "list-remove"
         onClicked: onDecrease()
         
         Component.onCompleted: {
