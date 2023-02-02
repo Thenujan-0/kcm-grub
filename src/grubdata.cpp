@@ -225,16 +225,8 @@ Entry *GrubData::findEntry(QString value)
 
 void GrubData::parseValues()
 {
-    // Add default value
-    m_hiddenTimeout_orig = 0;
-
     m_timeoutStyle_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT_STYLE"));
-    if (m_timeoutStyle_orig == "menu") {
-        m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
-    } else {
-        m_hiddenTimeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
-        qWarning() << "HIDDEN TIMEOUT" << m_hiddenTimeout_orig;
-    }
+    m_timeout_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT")).toFloat();
 
     QString val = unquoteWord(m_settings.value("GRUB_DEFAULT"));
 
@@ -247,14 +239,12 @@ void GrubData::parseValues()
 
     if (m_settings.contains("GRUB_HIDDEN_TIMEOUT")) {
         qWarning() << "Use of deprecated GRUB_HIDDEN_TIMEOUT";
-        m_hiddenTimeout_orig = unquoteWord(m_settings["GRUB_HIDDEN_TIMEOUT"]).toFloat();
     }
 
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
 
     m_timeout = m_timeout_orig;
     m_timeoutStyle = m_timeoutStyle_orig;
-    m_hiddenTimeout = m_hiddenTimeout_orig;
     m_defaultEntryType = m_defaultEntryType_orig;
     m_lookForOtherOs = m_lookForOtherOs_orig;
     m_defaultEntry = m_defaultEntry_orig;
@@ -394,8 +384,8 @@ QString GrubData::getValue(const QString &key)
 
 bool GrubData::isDirty()
 {
-    return (m_timeout != m_timeout_orig) || (m_hiddenTimeout != m_hiddenTimeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig)
-        || (m_defaultEntryType != m_defaultEntryType_orig) || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle());
+    return (m_timeout != m_timeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig) || (m_defaultEntryType != m_defaultEntryType_orig)
+        || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle());
 }
 
 void GrubData::readAll(){

@@ -14,7 +14,6 @@ class GrubData : public QObject
     Q_PROPERTY(QList<Entry *> osEntries MEMBER m_osEntries NOTIFY osEntriesChanged);
     Q_PROPERTY(Entry *defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
-    Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
     Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
     Q_PROPERTY(QString timeoutStyle MEMBER m_timeoutStyle NOTIFY dataChanged);
     Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
@@ -64,8 +63,6 @@ private:
     bool m_lookForOtherOs_orig;
     float m_timeout;
     float m_timeout_orig;
-    float m_hiddenTimeout;
-    float m_hiddenTimeout_orig;
     QString m_timeoutStyle;
     QString m_timeoutStyle_orig;
     DefaultEntryType m_defaultEntryType;
