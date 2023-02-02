@@ -198,6 +198,14 @@ void GrubData::addDefaultValues()
             m_settings[i.key()] = i.value();
         }
     }
+
+    // Add the values that will be used by grub because of 30_os-prober override
+    if (unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "false") {
+        if (unquoteWord(m_settings["GRUB_TIMEOUT"]) == "0") {
+            m_settings["GRUB_TIMEOUT"] = "10";
+        }
+        m_settings["GRUB_TIMEOUT_STYLE"] = "menu";
+    }
 }
 
 Entry *GrubData::findEntry(QString value)
