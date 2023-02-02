@@ -1,1 +1,3 @@
-Show correct default os
+Somehow reduce the length of entries inside ComboBox
+Add reload Entries button which runs update-grub and reloads entries (maybe we can just use 30_osprober)
+test double validator
