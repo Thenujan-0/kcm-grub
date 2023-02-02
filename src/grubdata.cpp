@@ -284,6 +284,9 @@ void GrubData::save()
         const QString value = m_lookForOtherOs ? "false" : "true";
         setValue("GRUB_DISABLE_OS_PROBER", value);
     }
+    if (m_timeoutStyle != m_timeoutStyle_orig) {
+        setValue("GRUB_TIMEOUT_STYLE", m_timeoutStyle);
+    }
 
     KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
     saveAction.setHelperId("org.kde.kcontrol.kcmgrub2");
