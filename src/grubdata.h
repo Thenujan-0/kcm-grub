@@ -10,8 +10,8 @@ QStringList getAllOsEntries();
 class GrubData : public QObject
 {
     Q_OBJECT
-    Q_CLASSINFO("D-Bus Interface", "org.kde.kcontrol.kcmgrub")
-    Q_PROPERTY(QList<Entry *> osEntries MEMBER m_osEntries CONSTANT);
+    Q_CLASSINFO("D-Bus Interface", "org.kde.kcontrol.kcmgrub");
+    Q_PROPERTY(QList<Entry *> osEntries MEMBER m_osEntries NOTIFY osEntriesChanged);
     Q_PROPERTY(Entry *defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(float hiddenTimeout MEMBER m_hiddenTimeout NOTIFY dataChanged);
@@ -35,6 +35,7 @@ public:
 
 signals:
     void dataChanged();
+    void osEntriesChanged();
     void error(const QString &message);
     void savingStarted();
     void updateOutput(QString text);
