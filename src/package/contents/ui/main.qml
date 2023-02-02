@@ -15,10 +15,12 @@ import org.kde.plasma.kcm.data 1.0
 
 KCM.SimpleKCM {
     id: root
-    implicitWidth:Kirigami.Units.largeSpacing * 100
-    implicitHeight:Kirigami.Units.largeSpacing *70
+
+    implicitWidth: Kirigami.Units.largeSpacing * 12 +cob_os_entries.implicitWidth
+    implicitHeight: Kirigami.Units.largeSpacing * 70
     header: Kirigami.InlineMessage {
         id: errorMessage
+        
         showCloseButton: true
 
         Connections {
@@ -39,19 +41,8 @@ KCM.SimpleKCM {
                     sheetOverrideWarning.open()
                 }
             }
-        
-        Component.onCompleted: 
-        {
-            if (kcm.grubData.lookForOtherOs){
-                errorMessage.type = Kirigami.MessageType.Warning
-                errorMessage.visible = true
-                errorMessage.text = i18nd("kcm_grub2","<html><style type=\"text/css\"></style>As you have \"look for other operating systems\" enabled,"+ 
-                    " Your menu related settings (timeout , show behavior) might get overridden</html>");
-            }
-
-                errorMessage.actions = [fixItAction]
-            }
     }
+
     Kirigami.OverlaySheet {
         id: sheetSavingProgress
         property bool saving :false
@@ -85,7 +76,7 @@ KCM.SimpleKCM {
                 anchors.topMargin:sheetSavingProgress.spacing
                 anchors.left: parent.left
                 anchors.right: parent.right
-                
+
                 onClicked: {
                     if (sheetScrollView.visible){
                         sheetScrollView.visible = false
@@ -113,7 +104,7 @@ KCM.SimpleKCM {
                     id: rect
                     color:Kirigami.Theme.alternateBackgroundColor
                 }
-                
+
                 QQC2.Label{
                     id:sheetLabel
                     
@@ -130,36 +121,13 @@ KCM.SimpleKCM {
                             sheetSavingProgress.saving = false
                         }
                     }
-                    
+
                     Connections {
                         target: kcm.grubData
                         function onUpdateOutput(text){
                             sheetLabel.text += text
                         }
                     }
-                }
-            }
-        }
-    }
-
-    Kirigami.OverlaySheet{
-        id:sheetOverrideWarning
-        header:QQC2.Label{
-            text:"Details on override behavior of \"Look for other OS\""
-        }
-        QQC2.Label{
-            text:"If you have \"look for other os\" enabled, It will override some of your settings."+
-                "\nThis is a feature to avoid the user from getting into a state where he cannot change grub settings"+
-                "\nIf you have set the timeout before showing the menu to 0, It will automatically set it to 10" +
-                "\nIf you have set a timeout before showing menu (hide menu for), It will be removed"
-            wrapMode:Qt.WordWrap
-
-        }
-        footer:RowLayout{
-            QQC2.Button{
-                text: "Ok"
-                onClicked: {
-                    sheetOverrideWarning.close()
                 }
             }
         }
@@ -217,58 +185,8 @@ KCM.SimpleKCM {
             Layout.preferredHeight:Kirigami.Units.largeSpacing
         }
 
-        RowLayout{
-
-            Kirigami.FormData.label:"Timeout:"
-
-            QQC2.CheckBox{
-                id:chb_bootDefault
-
-                text:"Hide the menu for"
-                checked:kcm.grubData.hiddenTimeout !=0
-            }
-
-            DoubleSpinBox{
-                id:grubTimeout
-                text: kcm.grubData.hiddenTimeout
-                onIncrease : function(){
-                    kcm.grubData.hiddenTimeout +=1
-                    kcm.settingsChanged()
-                }
-                onDecrease: function(){
-                    kcm.grubData.hiddenTimeout -=1
-                    kcm.settingsChanged()
-                }
-
-            }
-            
-
-            QQC2.Label{
-                text:"seconds"
-            }
-        }
-        RowLayout{//Just for indentation
-            QQC2.CheckBox{
-                Layout.leftMargin: Kirigami.Units.largeSpacing *3
-                text: "Show countdown timer"
-                checked: kcm.grubData.timeoutStyle == "countdown"
-                onClicked: {
-                    if (!chb_bootDefault.checked){
-                        return
-                    }
-                    if(checked){
-                        kcm.grubData.timeoutStyle="countdown"
-                    }else{
-                        kcm.grubData.timeoutStyle="hidden"
-                    }
-                }
-            }
-        }
-        Item{
-            Layout.preferredHeight:Kirigami.Units.largeSpacing
-        }
-
         QQC2.CheckBox{
+            Kirigami.FormData.label: "Menu:"
             id:automaticallyBootDefault
             text: "Automatically boot default entry"
             checked:kcm.grubData.timeout != -1
@@ -282,52 +200,74 @@ KCM.SimpleKCM {
 
         RowLayout{
             QQC2.RadioButton{
-                id:immediately
-                Layout.leftMargin: Kirigami.Units.largeSpacing *3
-                text:"Immediately"
-                enabled:automaticallyBootDefault.checked
+                id:rb_immediately
+                Layout.leftMargin: Kirigami.Units.largeSpacing * 3
 
+                text:"Immediately"
+                // Workaround for https://bugreports.qt.io/browse/QTBUG-30801
+
+                opacity: automaticallyBootDefault.checked && !chb_lookForOtherOs.checked ? 1 : 0.5
                 checked:kcm.grubData.timeout == 0
                 onClicked: {
-                    if(checked){
-                        after.checked=false
-                        kcm.grubData.timeout = 0
-                        kcm.settingsChanged()
+                    if (!(automaticallyBootDefault.checked && !chb_lookForOtherOs.checked)){
+                        checked = false
+                        return
                     }
+                    if (checked) {
+                        rb_after.checked = false;
+                        kcm.grubData.timeout = 0;
+                        kcm.settingsChanged();
+                    }
+                }
+
+                Binding on checked {
+                    value: kcm.grubData.timeout == 0
+                }
+                QQC2.ToolTip {
+                    text: "Can't be enabled when \"Look for other operating systems\" is enabled"
                 }
             }
         }
         RowLayout{
             QQC2.RadioButton{
-                id:after
-                Layout.leftMargin: Kirigami.Units.largeSpacing *3
+                id:rb_after
+
+                Layout.leftMargin: Kirigami.Units.largeSpacing * 3
                 text:"After"
                 enabled:automaticallyBootDefault.checked
                 checked:kcm.grubData.timeout != 0
                 onClicked: {
                     if(checked){
-                        immediately.checked=false
-                        kcm.grubData.timeout = Number(timeout.text)
+                        rb_immediately.checked=false
+                        kcm.grubData.timeout = Number(timeout.text) > 0 ? Number(timeout.text) : 10
                         kcm.settingsChanged()
                     }
                 }
 
+                Binding on checked {
+                    value: kcm.grubData.timeout != 0
+                }
 
             }
-            DoubleSpinBox{
-                id:timeout
+
+            DoubleSpinBox {
+                id: timeout
+
                 text: kcm.grubData.timeout.toString()
                 onIncrease: function(){
                     kcm.grubData.timeout += 1
                     kcm.settingsChanged()
                 }
                 onDecrease: function(){
-                    kcm.grubData.timeout -= 1
-                    kcm.settingsChanged()
+                    if (kcm.grubData.timeout <= 1)
+                        return ;
+
+                    kcm.grubData.timeout -= 1;
+                    kcm.settingsChanged();
                 }
 
                 onEditFinished: {
-                    if(after.checked){
+                    if(rb_after.checked){
                         kcm.grubData.timeout = Number(text)
                         kcm.settingsChanged()
                     }
@@ -338,18 +278,50 @@ KCM.SimpleKCM {
                 text:"seconds"
             }
         }
+        QQC2.CheckBox {
+            id: chb_showMenu
+            text: "Show menu"
+            opacity: !chb_lookForOtherOs.checked ? 1 :0.5
+            
+            onClicked: {
+                if (chb_lookForOtherOs.checked){
+                    checked = true
+                    return
+                }
+                if (checked)
+                    kcm.grubData.timeoutStyle = "menu";
+                else
+                    kcm.grubData.timeoutStyle = "hidden";
+            }
+
+            Binding on checked {
+                value: kcm.grubData.timeoutStyle == "menu"
+            }
+            QQC2.ToolTip{
+                text:"Can't be disabled when look for other os is enabled"
+            }
+        }
 
         Item{
             Layout.preferredHeight:Kirigami.Units.largeSpacing
         }
 
         QQC2.CheckBox{
+            id: chb_lookForOtherOs
             Kirigami.FormData.label: "Generated entries:"
             text: "Look for other Operating systems"
             checked: kcm.grubData.lookForOtherOs
             onClicked: {
                 kcm.grubData.lookForOtherOs = checked
                 kcm.settingsChanged()
+                if (checked){
+                    if (rb_immediately.checked){
+                        kcm.grubData.timeout = 10
+                    }
+                    if(!chb_showMenu.checked){
+                        kcm.grubData.timeoutStyle= "menu"
+                    }
+                }
             }
         }
     }
