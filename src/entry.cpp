@@ -60,6 +60,14 @@ QString Entry::fullTitle() const
     }
     return fullTitle + unquoteWord(m_title.str);
 }
+QString Entry::compactTitle() const
+{
+    if (m_ancestors.count() > 0) {
+        return QString("    ") + unquoteWord(m_title.str);
+    }
+
+    return unquoteWord(m_title.str);
+}
 QString Entry::fullNumTitle() const
 {
     QString fullNumTitle;

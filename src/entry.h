@@ -26,7 +26,7 @@
 class Entry : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString title READ fullTitle CONSTANT);
+    Q_PROPERTY(QString title READ compactTitle CONSTANT);
 
 public:
     struct Title {
@@ -48,6 +48,7 @@ public:
     Entry::Title title() const;
     QString prettyTitle() const;
     QString fullTitle() const;
+    QString compactTitle() const;
     QString fullNumTitle() const;
     Entry::Type type() const;
     int level() const;
