@@ -57,7 +57,7 @@ KCM.SimpleKCM {
                 id:overlayMainlabel
                 Layout.fillWidth: true
                 anchors.top:parent.top
-                text: "Saving changes please wait!"
+                text: sheetSavingProgress.saving ?"Saving changes please wait!" : "Settings have been saved successfully"
             }
             QQC2.ProgressBar {
                 id:overlayProgressBar
@@ -117,7 +117,6 @@ KCM.SimpleKCM {
                         }
 
                         function onSavingFinished(){
-                            overlayMainlabel.text = "Settings have been saved successfully"
                             sheetSavingProgress.saving = false
                         }
                     }
