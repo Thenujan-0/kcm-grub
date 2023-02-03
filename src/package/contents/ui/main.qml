@@ -134,7 +134,7 @@ KCM.SimpleKCM {
 
     Kirigami.FormLayout{
         RowLayout{
-            Kirigami.FormData.label:"default entry:"
+            Kirigami.FormData.label:"Default entry:"
 
             QQC2.RadioButton{
                 id:rb_pre_defined
