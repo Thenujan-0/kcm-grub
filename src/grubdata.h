@@ -27,6 +27,7 @@ public:
 
     bool isDirty();
     void save();
+    void load();
     bool setValue(QString key, QString val, QString readFileName = "");
     void initCache();
     void setCurrentFile(const QString &fileName);

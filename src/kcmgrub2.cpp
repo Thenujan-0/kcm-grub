@@ -53,7 +53,8 @@ bool KcmGrub2::isDefaults() const
 
 void KcmGrub2::load()
 {
-    qWarning() << m_data;
+    m_data->load();
+    Q_EMIT settingsChanged();
 }
 void KcmGrub2::save()
 {

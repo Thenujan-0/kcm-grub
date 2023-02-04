@@ -31,9 +31,14 @@ GrubData::GrubData(QObject *parent)
 
     QDBusConnection::sessionBus().registerService("org.kde.kcontrol.kcmgrub");
     QDBusConnection::sessionBus().registerObject("/internal", this, QDBusConnection::ExportAllSlots);
-
     readAll();
 }
+
+void GrubData::load()
+{
+    readAll();
+}
+
 bool GrubData::updateCommandOutput(QString text)
 {
     Q_EMIT updateOutput(text);
