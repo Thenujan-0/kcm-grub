@@ -208,7 +208,7 @@ void GrubData::addDefaultValues()
     }
 }
 
-Entry *GrubData::findEntry(QString value)
+Entry *GrubData::findEntry(const QString &value)
 {
     QList<Entry *>::iterator i;
     for (i = m_osEntries.begin(); i != m_osEntries.end(); ++i) {
@@ -217,10 +217,12 @@ Entry *GrubData::findEntry(QString value)
             return entry;
         }
     }
+    // If entry wasn't found then, grub will use the default falue for GRUB_DEFAULT therefore,
+    qWarning() << "Invalid value for GRUB_DEFAULT";
+    i = m_osEntries.begin();
+    Entry *entry = *i;
 
-    Entry *invalidEntry = new Entry(value, -1, Entry::Type::Invalid, -1);
-    m_osEntries.append(invalidEntry);
-    return invalidEntry;
+    return entry;
 }
 
 void GrubData::parseValues()

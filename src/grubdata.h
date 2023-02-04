@@ -55,7 +55,7 @@ private:
     void parseValues();
 
     void deleteEntries();
-    Entry *findEntry(QString value);
+    Entry *findEntry(const QString &value);
 
     QHash<QString, QString> m_settings;
 
