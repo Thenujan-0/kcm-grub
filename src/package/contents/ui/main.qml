@@ -40,7 +40,7 @@ KCM.SimpleKCM {
                     errorMessage.visible = false
                     sheetOverrideWarning.open()
                 }
-            }
+        }
     }
 
     Kirigami.OverlaySheet {
