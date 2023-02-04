@@ -5,3 +5,4 @@ kcm_grub2.cpp
 src/tests/testCaseFiles/temp.txt
 .kdev4
 *.kdev4
+README.md.backup
