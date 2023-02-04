@@ -300,9 +300,8 @@ void GrubData::save()
         qWarning() << "KAuth result:" << contents;
         qWarning() << "KAuth exitCode:" << contents2;
         Q_EMIT savingFinished();
+        readAll();
     });
-
-    readAll();
 }
 
 bool GrubData::setValue(QString key, QString val, QString readFileName)
