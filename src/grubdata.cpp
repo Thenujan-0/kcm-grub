@@ -429,4 +429,5 @@ void GrubData::readAll(){
     //     operations |= Locales;
     // }
     Q_EMIT osEntriesChanged();
+    Q_EMIT dataChanged();
 }
