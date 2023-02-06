@@ -1,9 +1,11 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QMetaProperty>
 #include <QTextStream>
 #include <QtGlobal>
 
+#include "grubdata.h"
 #include "testutils.h"
 #include <filesystem>
 #include <optional>
@@ -60,8 +62,9 @@ optional<QStringList> lineChanged(const QString &state1, const QString &state2)
     if (lines1.count() < lines2.count()) {
         if (lines2.last() != "") {
             return {};
+            qWarning() << "state1 has less lines than state2 when only line change is expected. Lines count in state1, state2 are " << lines1.count()
+                       << lines2.count();
         }
-        qWarning() << "state1 has less lines than state2. Lines count in state1, state2 are " << lines1.count() << lines2.count();
     }
     QStringList toReturn;
     for (int i = 0; i < lines1.count(); i++) {
@@ -110,4 +113,19 @@ optional<QString> lineAdded(const QString &state1, const QString &state2)
     } else {
         return lines2[lines2.count() - 2];
     }
+}
+
+QMetaProperty getDefaultEntryTypeProp(GrubData *data)
+{
+    return data->metaObject()->property(3);
+}
+
+QMetaProperty getDefaultEntryProp(GrubData *data)
+{
+    return data->metaObject()->property(2);
+}
+
+QMetaProperty getTimeoutProp(GrubData *data)
+{
+    return data->metaObject()->property(4);
 }

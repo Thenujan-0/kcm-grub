@@ -20,3 +20,10 @@ add_executable(${TEST_NAME} loadvalues.cpp ${TEST_SRCS})
 target_link_libraries(${TEST_NAME} ${TEST_LIBS})
 add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 ecm_mark_as_test(${TEST_NAME})
+
+set(TEST_NAME testinvaliddefault)
+
+add_executable(${TEST_NAME} invaliddefault.cpp ${TEST_SRCS})
+target_link_libraries(${TEST_NAME} ${TEST_LIBS})
+add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+ecm_mark_as_test(${TEST_NAME})

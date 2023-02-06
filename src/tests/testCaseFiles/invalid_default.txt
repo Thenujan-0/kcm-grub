@@ -1,0 +1,3 @@
+GRUB_DEFAULT='Mampalam linux'
+GRUB_TIMEOUT="6"
+GRUB_TIMEOUT_STYLE="hidden"

@@ -1,8 +1,10 @@
 #include <KAuth/Action>
 
 #include <QMetaProperty>
+#include <QVariant>
 
 #include "common.h"
+#include "entry.h"
 #include "grubdata.h"
 #include "setvalue.h"
 #include "testutils.h"
@@ -53,9 +55,11 @@ void TestSetValue::replaceCommented()
 
     QMetaProperty defaultEntryProp = data->metaObject()->property(2);
     QMetaProperty defaultEntryTypeProp = data->metaObject()->property(3);
+    GrubData::DefaultEntryType defaultEntryType = defaultEntryTypeProp.read(data).value<GrubData::DefaultEntryType>();
     qWarning() << defaultEntryProp.read(data) << "default entry";
 
-    QVERIFY(defaultEntryProp.write(data, "Manjaro linux is awesome"));
+    Entry *entry = new Entry("Manjaro Linux is awesome", -1, Entry::Type::Menuentry, 1);
+    QVERIFY(defaultEntryProp.write(data, QVariant::fromValue(entry)));
     data->save();
     optional<QString> state2 = readFile(writeFile);
     QVERIFY(state2);
@@ -63,8 +67,7 @@ void TestSetValue::replaceCommented()
     auto change = lineChanged(state1.value(), state2.value());
     QVERIFY(change);
     QCOMPARE(change.value()[0], "#GRUB_DEFAULT='Manjaro Linux'");
-    QCOMPARE(change.value()[1], "GRUB_DEFAULT='Manjaro linux is awesome'");
-    // QString defaultEntryType = defaultEntryTypeProp.read(data).toString();
+    QCOMPARE(change.value()[1], "GRUB_DEFAULT=-1");
 }
 
 // Check if key is correctly added when a key doesn't exist in the config
@@ -78,7 +81,7 @@ void TestSetValue::addKey()
     QVERIFY(state1);
     data->setCurrentFile(writeFile);
 
-    QMetaProperty lookForOtherOsProp = data->metaObject()->property(6);
+    QMetaProperty lookForOtherOsProp = data->metaObject()->property(7);
     QVERIFY(lookForOtherOsProp.write(data, true));
     data->save();
 
