@@ -1,3 +1,6 @@
-Somehow reduce the length of entries inside ComboBox
 Add reload Entries button which runs update-grub and reloads entries (maybe we can just use 30_osprober)
 test double validator
+Bigger timeout to authentication
+Show authentication failed when user didn't enter password
+Checkbox for after should be ticked when before has been clicked and then value of after was changed by manually typing
+Checkbox for "Immediately" shouldn't be triggered when value of after was manually typed as 0
