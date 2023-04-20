@@ -30,7 +30,16 @@ DoubleSpinBox {
             mouseClick(dsb,dsb.width-25)
             compare(dsb.text,"0")
         }
-        
 
+        function test_input_invalid(){
+            //Letters are not insertable
+            dsb.inserted(1,"abc")
+            compare(dsb.text,"1")
+
+            //Negative numbers are not insertable
+            dsb.inserted(0,"-1")
+            compare(dsb.text,"1")
+        }
+        
     }
 }
