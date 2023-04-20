@@ -7,6 +7,7 @@ Item{
     height:textField.height
 
     property alias text : textField.text
+    signal inserted(int ind,string text)
     property var onDecrease;
     property var onIncrease;
     signal editFinished()
@@ -43,5 +44,12 @@ Item{
             reduceButton.clicked.connect(textField.editingFinished)
         }
         
+    }
+    Component.onCompleted: {
+        customTextField.inserted.connect(onInserted)
+    }
+
+    function onInserted(ind, text){
+        textField.insert(ind,text)
     }
 }
