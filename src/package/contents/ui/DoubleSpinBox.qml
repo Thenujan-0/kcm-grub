@@ -19,7 +19,7 @@ Item{
         anchors.left:customTextField.left
         anchors.right:customTextField.right
         validator: DoubleValidator{
-            bottom:-1.0
+            bottom:0
             decimals: 1
         }
 
