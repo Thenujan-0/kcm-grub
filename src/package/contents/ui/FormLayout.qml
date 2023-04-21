@@ -73,6 +73,7 @@ Kirigami.FormLayout{
     RowLayout{
         QQC2.RadioButton{
             id:rb_immediately
+            objectName:"rb_immediately"
             Layout.leftMargin: Kirigami.Units.largeSpacing * 3
 
             text:"Immediately"
@@ -124,6 +125,7 @@ Kirigami.FormLayout{
 
         DoubleSpinBox {
             id: timeout
+            objectName:"dsb_timeout"
 
             text: kcm.grubData.timeout.toString()
             onIncrease: function(){
@@ -152,6 +154,7 @@ Kirigami.FormLayout{
     }
     QQC2.CheckBox {
         id: chb_showMenu
+        objectName: "chb_showMenu"
         text: "Show menu"
         opacity: !chb_lookForOtherOs.checked ? 1 :0.5
         
@@ -180,6 +183,7 @@ Kirigami.FormLayout{
 
     QQC2.CheckBox{
         id: chb_lookForOtherOs
+        objectName:"chb_lookForOtherOs"
         Kirigami.FormData.label: "Generated entries:"
         text: "Look for other Operating systems"
         checked: kcm.grubData.lookForOtherOs
