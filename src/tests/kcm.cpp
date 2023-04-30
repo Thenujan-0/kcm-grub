@@ -15,3 +15,9 @@ GrubData *Kcm::grubData() const
 {
     return m_data;
 };
+
+void Kcm::settingsChanged()
+{
+    m_apply_btn_enabled = m_data->isDirty();
+    return;
+}

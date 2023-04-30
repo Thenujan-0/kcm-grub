@@ -8,15 +8,16 @@ class Kcm : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(GrubData *grubData READ grubData CONSTANT);
-    // Todo add QInvokable settingsChanged
 
 public:
     explicit Kcm(QObject *parent = nullptr);
     ~Kcm() override;
     GrubData *grubData() const;
+    Q_INVOKABLE void settingsChanged();
 
 private:
     GrubData *m_data;
+    bool m_apply_btn_enabled;
 };
 
 #endif
