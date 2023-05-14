@@ -251,6 +251,7 @@ void GrubData::parseValues()
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
 
     m_timeout = m_timeout_orig;
+    m_immediateTimeout = m_timeout == 0;
     m_timeoutStyle = m_timeoutStyle_orig;
     m_defaultEntryType = m_defaultEntryType_orig;
     m_lookForOtherOs = m_lookForOtherOs_orig;
@@ -273,8 +274,13 @@ void GrubData::save()
         setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry->fullNumTitle()));
     }
 
-    if (m_timeout != m_timeout_orig) {
-        setValue("GRUB_TIMEOUT", quoteWord(QString::number(m_timeout)));
+    float timeout = m_timeout;
+    if (m_immediateTimeout) {
+        timeout = 0.0;
+    }
+
+    if (timeout != m_timeout_orig) {
+        setValue("GRUB_TIMEOUT", quoteWord(QString::number(timeout)));
     }
 
     if (m_lookForOtherOs != m_lookForOtherOs_orig) {
@@ -390,7 +396,12 @@ QString GrubData::getValue(const QString &key)
 
 bool GrubData::isDirty()
 {
-    return (m_timeout != m_timeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig) || (m_defaultEntryType != m_defaultEntryType_orig)
+    float timeout = m_timeout;
+    if (m_immediateTimeout) {
+        timeout = 0.0;
+    }
+
+    return (timeout != m_timeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig) || (m_defaultEntryType != m_defaultEntryType_orig)
         || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle());
 }
 

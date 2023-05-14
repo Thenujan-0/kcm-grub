@@ -15,6 +15,7 @@ class GrubData : public QObject
     Q_PROPERTY(Entry *defaultEntry MEMBER m_defaultEntry NOTIFY dataChanged);
     Q_PROPERTY(GrubData::DefaultEntryType defaultEntryType MEMBER m_defaultEntryType NOTIFY dataChanged);
     Q_PROPERTY(float timeout MEMBER m_timeout NOTIFY dataChanged);
+    Q_PROPERTY(bool immediateTimeout MEMBER m_immediateTimeout NOTIFY dataChanged);
     Q_PROPERTY(QString timeoutStyle MEMBER m_timeoutStyle NOTIFY dataChanged);
     Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
 
@@ -62,6 +63,7 @@ private:
 
     bool m_lookForOtherOs;
     bool m_lookForOtherOs_orig;
+    bool m_immediateTimeout; // If this is true then value of timeout is ignored and zero is used as the timeout value
     float m_timeout;
     float m_timeout_orig;
     QString m_timeoutStyle;

@@ -80,7 +80,7 @@ Kirigami.FormLayout{
             // Workaround for https://bugreports.qt.io/browse/QTBUG-30801
 
             opacity: automaticallyBootDefault.checked && !chb_lookForOtherOs.checked ? 1 : 0.5
-            checked:kcm.grubData.timeout == 0
+            checked:kcm.grubData.immediateTimeout
             onClicked: {
                 if (!(automaticallyBootDefault.checked && !chb_lookForOtherOs.checked)){
                     checked = false
@@ -88,13 +88,13 @@ Kirigami.FormLayout{
                 }
                 if (checked) {
                     rb_after.checked = false;
-                    kcm.grubData.timeout = 0;
+                    kcm.grubData.immediateTimeout = true;
                     kcm.settingsChanged();
                 }
             }
 
             Binding on checked {
-                value: kcm.grubData.timeout == 0
+                value: kcm.grubData.immediateTimeout
             }
             QQC2.ToolTip {
                 text: "Can't be enabled when \"Look for other operating systems\" is enabled"
@@ -108,7 +108,7 @@ Kirigami.FormLayout{
             Layout.leftMargin: Kirigami.Units.largeSpacing * 3
             text:"After"
             enabled:automaticallyBootDefault.checked
-            checked:kcm.grubData.timeout != 0
+            checked: !kcm.grubData.immediateTimeout
             onClicked: {
                 if(checked){
                     rb_immediately.checked=false
@@ -118,7 +118,7 @@ Kirigami.FormLayout{
             }
 
             Binding on checked {
-                value: kcm.grubData.timeout != 0
+                value:  !kcm.grubData.immediateTimeout
             }
 
         }
@@ -127,7 +127,7 @@ Kirigami.FormLayout{
             id: timeout
             objectName:"dsb_timeout"
 
-            text: kcm.grubData.timeout.toString()
+            text: kcm.grubData.timeout <= 0 ? "10" : kcm.grubData.timeout.toString() 
             onIncrease: function(){
                 kcm.grubData.timeout += 1
                 kcm.settingsChanged()
@@ -193,6 +193,7 @@ Kirigami.FormLayout{
             if (checked){
                 if (rb_immediately.checked){
                     kcm.grubData.timeout = 10
+                    kcm.grubData.immediateTimeout = false;
                 }
                 if(!chb_showMenu.checked){
                     kcm.grubData.timeoutStyle= "menu"
