@@ -56,7 +56,16 @@ private Q_SLOTS:
         opacity = rb_immediately->property("opacity");
         QVERIFY2(opacity.toDouble() == 1.0, (QString("opacity of immediately radio button is less than 1.0 : ") + opacity.toString()).toUtf8().data());
 
-        // Todo verify the opacity of show menu as well
+        // Check if showMenu is also inactive
+        auto chb_showMenu = findItem("chb_showMenu");
+        opacity = chb_showMenu->property("opacity");
+        QVERIFY2(opacity.toDouble() == 1.0, (QString("opacity of show menu check box is less than 1.0 : ") + opacity.toString()).toUtf8().data());
+        clickItem(chb_lookForOtherOs);
+
+        // Now show menu should be active
+        opacity = chb_showMenu->property("opacity");
+        QVERIFY2(opacity.toDouble() < 1.0, (QString("opacity of show menu check box is not less than 1.0 : ") + opacity.toString()).toUtf8().data());
+        clickItem(chb_lookForOtherOs);
     }
 
     void clickItem(QObject *itemObject)
