@@ -33,6 +33,9 @@ find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
     KCMUtils
 )
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
+include(GRUBPaths)
+
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050c00)
 add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x054200)
 
@@ -48,6 +51,10 @@ add_definitions(-DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT)
 # install(TARGETS kcmtest_authhelper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/src/config.h)
+
+# used to import config.h for the test files
+set(SRC_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/src")
+
 enable_testing ()
 add_subdirectory(src)
 

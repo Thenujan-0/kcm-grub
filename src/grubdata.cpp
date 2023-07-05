@@ -8,9 +8,10 @@
 #include <QTimer>
 #include <QtGlobal>
 
+#include <common.h>
+#include <config.h>
 #include <entry.h>
 #include <grubdata.h>
-#include <common.h>
 
 #include <KAuth/Action>
 #include <KAuth/ExecuteJob>
@@ -24,8 +25,8 @@ QString HOME = qgetenv("HOME");
 static const QString TEMPDATAFILE = HOME + QString("/.local/share/grub-editor-cpp/grubToWrite.txt");
 
 GrubData::GrubData(QObject *parent)
-    :m_issues(QStringList()),
-    m_currFileName(QString("/etc/default/grub"))
+    : m_issues(QStringList())
+    , m_currFileName(grubConfigPath())
 {
     Q_UNUSED(parent);
 
@@ -410,7 +411,7 @@ void GrubData::readAll(){
     LoadOperations operations = NoOperation;
     // qWarning() << "File contents are being read";
 
-    fileContents = readFile("/boot/grub/grub.cfg");
+    fileContents = readFile(grubMenuPath());
     if (fileContents.has_value()) {
         parseEntries(fileContents.value());
     } else {
