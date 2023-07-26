@@ -333,15 +333,15 @@ bool GrubData::setValue(QString key, QString val, QString readFileName)
     if (readFileName == "") {
         readFileName = TEMPDATAFILE;
     }
-    QFile readFile(readFileName);
+    QFile file(readFileName);
     // qWarning() << readFileName;
     QString toWrite;
     bool replaced = false;
-    if (!readFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
     }
 
-    QTextStream in(&readFile);
+    QTextStream in(&file);
 
     if (key == QString("GRUB_DEFAULT")) {
         val.replace(QString(" >"), QString(">"));
@@ -373,13 +373,13 @@ bool GrubData::setValue(QString key, QString val, QString readFileName)
     if (!replaced) {
         toWrite += key + QChar('=') + val + QChar('\n');
     }
-    readFile.close();
-    if (!readFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    file.close();
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
     }
-    QTextStream out(&readFile);
+    QTextStream out(&file);
     out << toWrite;
-    readFile.close();
+    file.close();
     return true;
 }
 
