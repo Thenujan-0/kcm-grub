@@ -51,10 +51,12 @@ private:
     void parseEntries(const QString &line);
     void readAll();
     void parseSettings(const QString &config);
+    void showLocales();
 
     // Adds default values for keys that don't exist in /etc/default/grub
     void addDefaultValues();
     void parseValues();
+    void parseEnv(const QString &config);
 
     void deleteEntries();
     Entry *findEntry(const QString &value);
@@ -75,4 +77,13 @@ private:
     QList<Entry *> m_osEntries;
     QStringList m_issues;
     QString m_currFileName;
+
+    QHash<QString, QString> m_env;
+    bool m_memtest;
+    bool m_memtestOn;
+    QHash<QString, QString> m_devices;
+    QStringList m_resolutions;
+    bool m_resolutionsEmpty;
+    bool m_resolutionsForceRead;
+    QStringList m_locales;
 };

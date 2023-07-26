@@ -16,6 +16,7 @@ private:
     ActionReply executeCommand(const QStringList &command);
     // bool setLang(const QString &lang);
 public Q_SLOTS:
+    ActionReply load(QVariantMap args);
     ActionReply save(QVariantMap args);
 
 private:

@@ -100,6 +100,24 @@ void GrubData::deleteEntries()
     m_osEntries.clear();
 }
 
+void GrubData::showLocales()
+{
+    // ui->combobox_language->clear();
+    // ui->combobox_language->addItem(i18nc("@item:inlistbox", "No translation"), QString());
+
+    for (const QString &locale : qAsConst(m_locales)) {
+        QString language = QLocale(locale).nativeLanguageName();
+        if (language.isEmpty()) {
+            language = QLocale(locale.split(QLatin1Char('@')).first()).nativeLanguageName();
+            if (language.isEmpty()) {
+                language = QLocale(locale.split(QLatin1Char('@')).first().split(QLatin1Char('_')).first()).nativeLanguageName();
+            }
+        }
+        qWarning() << locale<<" "<<language;
+        // ui->combobox_language->addItem(QStringLiteral("%1 (%2)").arg(language, locale), locale);
+    }
+}
+
 void GrubData::parseEntries(const QString &config){
     bool inEntry = false;
     int menuLvl = 0;
@@ -186,7 +204,6 @@ void GrubData::parseSettings(const QString &config)
         }
     }
     addDefaultValues();
-    parseValues();
 }
 
 void GrubData::addDefaultValues()
@@ -423,23 +440,100 @@ void GrubData::readAll(){
     } else {
         operations |= ConfigurationFile;
     }
-    // if (readFile(grubEnvPath(), fileContents)) {
-    //     parseEnv(QString::fromUtf8(fileContents.constData()));
-    // } else {
-    //     operations |= EnvironmentFile;
-    // }
-    // if (QFile::exists(grubMemtestPath())) {
-    //     m_memtest = true;
-    //     m_memtestOn = (bool)(QFile::permissions(grubMemtestPath()) & (QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther));
-    // } else {
-    //     operations |= MemtestFile;
-    // }
+    fileContents = readFile(grubEnvPath());
+    if (fileContents.has_value()) {
+        parseEnv(fileContents.value());
+    } else {
+        operations |= EnvironmentFile;
+    }
+    if (QFile::exists(grubMemtestPath())) {
+        m_memtest = true;
+        m_memtestOn = (bool)(QFile::permissions(grubMemtestPath()) & (QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther));
+    } else {
+        operations |= MemtestFile;
+    }
 
-    // if (QFileInfo(grubLocalePath()).isReadable()) {
-    //     m_locales = QDir(grubLocalePath()).entryList(QStringList() << QStringLiteral("*.mo"), QDir::Files).replaceInStrings(QRegExp(QLatin1String("\\.mo$")), QString());
-    // } else {
-    //     operations |= Locales;
-    // }
+    if (QFileInfo(grubLocalePath()).isReadable()) {
+        m_locales = QDir(grubLocalePath())
+                        .entryList(QStringList() << QStringLiteral("*.mo"), QDir::Files)
+                        .replaceInStrings(QRegExp(QLatin1String("\\.mo$")), QString());
+    } else {
+        operations |= Locales;
+    }
+    if (operations) {
+        KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub2.load"));
+        loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub2"));
+        loadAction.addArgument(QStringLiteral("operations"), (int)(operations));
+
+        KAuth::ExecuteJob *loadJob = loadAction.execute();
+        if (!loadJob->exec()) {
+            qCritical() << "KAuth error!";
+            qCritical() << "Error code:" << loadJob->error();
+            qCritical() << "Error description:" << loadJob->errorText();
+            return;
+        }
+
+        if (operations.testFlag(MenuFile)) {
+            if (loadJob->data().value(QStringLiteral("menuSuccess")).toBool()) {
+                parseEntries(QString::fromUtf8(loadJob->data().value(QStringLiteral("menuContents")).toByteArray().constData()));
+                qWarning() << loadJob->data().value(QStringLiteral("menuContents")).toByteArray().constData() << grubMenuPath();
+            } else {
+                qCritical() << "Helper failed to read file:" << grubMenuPath();
+                qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("menuError")).toInt();
+                qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("menuErrorString")).toString();
+            }
+        }
+        if (operations.testFlag(ConfigurationFile)) {
+            if (loadJob->data().value(QStringLiteral("configSuccess")).toBool()) {
+                parseSettings(QString::fromUtf8(loadJob->data().value(QStringLiteral("configContents")).toByteArray().constData()));
+            } else {
+                qCritical() << "Helper failed to read file:" << grubConfigPath();
+                qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("configError")).toInt();
+                qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("configErrorString")).toString();
+            }
+        }
+        if (operations.testFlag(EnvironmentFile)) {
+            if (loadJob->data().value(QStringLiteral("envSuccess")).toBool()) {
+                parseEnv(QString::fromUtf8(loadJob->data().value(QStringLiteral("envContents")).toByteArray().constData()));
+            } else {
+                qCritical() << "Helper failed to read file:" << grubEnvPath();
+                qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("envError")).toInt();
+                qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("envErrorString")).toString();
+            }
+        }
+        if (operations.testFlag(MemtestFile)) {
+            m_memtest = loadJob->data().value(QStringLiteral("memtest")).toBool();
+            if (m_memtest) {
+                m_memtestOn = loadJob->data().value(QStringLiteral("memtestOn")).toBool();
+            }
+        }
+        if (operations.testFlag(Vbe)) {
+            m_resolutions = loadJob->data().value(QStringLiteral("gfxmodes")).toStringList();
+            m_resolutionsEmpty = false;
+            m_resolutionsForceRead = false;
+        }
+        if (operations.testFlag(Locales)) {
+            m_locales = loadJob->data().value(QStringLiteral("locales")).toStringList();
+        }
+    }
+
+    parseValues();
+    showLocales();
     Q_EMIT osEntriesChanged();
     Q_EMIT dataChanged();
+}
+
+void GrubData::parseEnv(const QString &config)
+{
+    QString line, configStr = config;
+    QTextStream stream(&configStr, QIODevice::ReadOnly | QIODevice::Text);
+
+    m_env.clear();
+    while (!stream.atEnd()) {
+        line = stream.readLine().trimmed();
+        if (line.startsWith(QLatin1Char('#'))) {
+            continue;
+        }
+        m_env[line.section(QLatin1Char('='), 0, 0)] = line.section(QLatin1Char('='), 1);
+    }
 }

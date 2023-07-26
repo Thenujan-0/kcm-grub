@@ -63,6 +63,61 @@ ActionReply Helper::executeCommand(const QStringList &command)
     return reply;
 }
 
+ActionReply Helper::load(QVariantMap args)
+{
+    ActionReply reply;
+    LoadOperations operations = (LoadOperations)(args.value(QStringLiteral("operations")).toInt());
+
+    if (operations.testFlag(MenuFile)) {
+        QFile file(grubMenuPath());
+        bool ok = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        reply.addData(QStringLiteral("menuSuccess"), ok);
+        if (ok) {
+            reply.addData(QStringLiteral("menuContents"), file.readAll());
+        } else {
+            reply.addData(QStringLiteral("menuError"), file.error());
+            reply.addData(QStringLiteral("menuErrorString"), file.errorString());
+        }
+    }
+    if (operations.testFlag(ConfigurationFile)) {
+        QFile file(grubConfigPath());
+        bool ok = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        reply.addData(QStringLiteral("configSuccess"), ok);
+        if (ok) {
+            reply.addData(QStringLiteral("configContents"), file.readAll());
+        } else {
+            reply.addData(QStringLiteral("configError"), file.error());
+            reply.addData(QStringLiteral("configErrorString"), file.errorString());
+        }
+    }
+    if (operations.testFlag(EnvironmentFile)) {
+        QFile file(grubEnvPath());
+        bool ok = file.open(QIODevice::ReadOnly | QIODevice::Text);
+        reply.addData(QStringLiteral("envSuccess"), ok);
+        if (ok) {
+            reply.addData(QStringLiteral("envContents"), file.readAll());
+        } else {
+            reply.addData(QStringLiteral("envError"), file.error());
+            reply.addData(QStringLiteral("envErrorString"), file.errorString());
+        }
+    }
+    if (operations.testFlag(MemtestFile)) {
+        bool memtest = QFile::exists(grubMemtestPath());
+        reply.addData(QStringLiteral("memtest"), memtest);
+        if (memtest) {
+            reply.addData(QStringLiteral("memtestOn"), (bool)(QFile::permissions(grubMemtestPath()) & (QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther)));
+        }
+    }
+
+    if (operations.testFlag(Locales)) {
+        reply.addData(QStringLiteral("locales"),
+                      QDir(grubLocalePath())
+                          .entryList(QStringList() << QStringLiteral("*.mo"), QDir::Files)
+                          .replaceInStrings(QRegExp(QLatin1String("\\.mo$")), QString()));
+    }
+    return reply;
+}
+
 ActionReply Helper::save(QVariantMap args)
 {
     QDir dir("/testRoot");
