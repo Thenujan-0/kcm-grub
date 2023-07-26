@@ -113,7 +113,7 @@ void GrubData::showLocales()
                 language = QLocale(locale.split(QLatin1Char('@')).first().split(QLatin1Char('_')).first()).nativeLanguageName();
             }
         }
-        qWarning() << locale<<" "<<language;
+        // qWarning() << locale << " " << language;
         // ui->combobox_language->addItem(QStringLiteral("%1 (%2)").arg(language, locale), locale);
     }
 }
@@ -475,8 +475,10 @@ void GrubData::readAll(){
 
         if (operations.testFlag(MenuFile)) {
             if (loadJob->data().value(QStringLiteral("menuSuccess")).toBool()) {
+                if ((int)(operations) == MenuFile) {
+                    Q_EMIT menuNotReadable();
+                }
                 parseEntries(QString::fromUtf8(loadJob->data().value(QStringLiteral("menuContents")).toByteArray().constData()));
-                qWarning() << loadJob->data().value(QStringLiteral("menuContents")).toByteArray().constData() << grubMenuPath();
             } else {
                 qCritical() << "Helper failed to read file:" << grubMenuPath();
                 qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("menuError")).toInt();
@@ -521,6 +523,21 @@ void GrubData::readAll(){
     showLocales();
     Q_EMIT osEntriesChanged();
     Q_EMIT dataChanged();
+}
+
+void GrubData::changeMenuPermissions()
+{
+    KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub2.changemenupermissions"));
+    loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub2"));
+    loadAction.addArgument(QStringLiteral("filePath"), grubMenuPath());
+
+    KAuth::ExecuteJob *loadJob = loadAction.execute();
+    if (!loadJob->exec()) {
+        qCritical() << "KAuth error!";
+        qCritical() << "Error code:" << loadJob->error();
+        qCritical() << "Error description:" << loadJob->errorText();
+        return;
+    }
 }
 
 void GrubData::parseEnv(const QString &config)

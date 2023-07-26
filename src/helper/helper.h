@@ -18,6 +18,7 @@ private:
 public Q_SLOTS:
     ActionReply load(QVariantMap args);
     ActionReply save(QVariantMap args);
+    ActionReply changemenupermissions(QVariantMap args);
 
 private:
     // QString errorDescription(int errorCode, const QString &errorMessage) const;

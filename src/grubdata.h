@@ -34,6 +34,8 @@ public:
     void setCurrentFile(const QString &fileName);
     QString getValue(const QString &key);
 
+    Q_INVOKABLE void changeMenuPermissions();
+
 signals:
     void dataChanged();
     void osEntriesChanged();
@@ -41,6 +43,7 @@ signals:
     void savingStarted();
     void updateOutput(QString text);
     void savingFinished();
+    void menuNotReadable();
 
 public Q_SLOTS:
     bool updateCommandOutput(QString text);

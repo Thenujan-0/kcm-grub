@@ -9,3 +9,9 @@ Name=Load configurations
 Description= Permissions are needed to save grub settings
 Policy=auth_admin
 Persistence=session
+
+[org.kde.kcontrol.kcmgrub2.changemenupermissions]
+Name=Change menu permissions
+Description= Permissions are needed to change permissions of menu file
+Policy=auth_admin
+Persistence=session

@@ -8,6 +8,7 @@
 #include <QDBusMessage>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QtGlobal>
 
 // KDE
@@ -166,6 +167,15 @@ ActionReply Helper::save(QVariantMap args)
     });
     process->waitForFinished(-1);
     reply.addData("exitCode", process->exitCode());
+    return reply;
+}
+
+ActionReply Helper::changemenupermissions(QVariantMap args)
+{
+    ActionReply reply;
+    QString filePath = args.value("filePath").toString();
+    QFile file{filePath};
+    file.setPermissions(file.permissions() | QFile::ReadOther);
     return reply;
 }
 
