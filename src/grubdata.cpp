@@ -210,6 +210,7 @@ void GrubData::addDefaultValues()
     map["GRUB_DEFAULT"] = "0";
     map["GRUB_DISABLE_OS_PROBER"] = "true";
     map["GRUB_TIMEOUT_STYLE"] = "menu";
+    map["GRUB_DISABLE_RECOVERY"] = "false";
 
     QMapIterator<QString, QString> i(map);
     while (i.hasNext()) {
@@ -279,8 +280,10 @@ void GrubData::parseValues()
         qWarning() << "Use of deprecated GRUB_HIDDEN_TIMEOUT";
     }
 
+    generateRecoveryEntries_orig = m_settings.value("GRUB_DISABLE_RECOVERY") == "true";
+
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
-    m_language_orig = findLanguage(unquoteWord(m_env.value("lang")));
+    m_language_orig = findLanguage(unquoteWord(m_settings.value("LANGUAGE")));
     m_timeout = m_timeout_orig;
     m_immediateTimeout = m_timeout == 0;
     m_timeoutStyle = m_timeoutStyle_orig;
@@ -288,6 +291,7 @@ void GrubData::parseValues()
     m_lookForOtherOs = m_lookForOtherOs_orig;
     m_defaultEntry = m_defaultEntry_orig;
     m_language = m_language_orig;
+    generateRecoveryEntries = generateRecoveryEntries_orig;
 }
 
 void GrubData::save()
@@ -322,6 +326,9 @@ void GrubData::save()
     if (m_timeoutStyle != m_timeoutStyle_orig) {
         setValue("GRUB_TIMEOUT_STYLE", m_timeoutStyle);
     }
+    if (m_language != m_language_orig) {
+        setValue("LANGUAGE", m_language->locale);
+    }
 
     KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
     saveAction.setHelperId("org.kde.kcontrol.kcmgrub2");
@@ -329,9 +336,7 @@ void GrubData::save()
     saveAction.addArgument("saveFile", m_currFileName);
     saveAction.addArgument("euid", geteuid());
     saveAction.addArgument("busAddress", qgetenv("DBUS_SESSION_BUS_ADDRESS"));
-    if (m_language != m_language_orig) {
-        saveAction.addArgument("lang", m_language->locale);
-    }
+
     KAuth::ExecuteJob *job = saveAction.execute();
     job->start();
     connect(job, &KAuth::ExecuteJob::result, this, [this, job]() {
@@ -575,6 +580,14 @@ Language::Language(const QString &argName, const QString &argLocale)
 {
     name = argName;
     locale = argLocale;
+}
+
+QString Language::formattedName()
+{
+    if (locale.isEmpty()) {
+        return name;
+    }
+    return name + QLatin1Char('(') + locale + QLatin1Char(')');
 }
 
 bool operator==(const Language &left, const Language &right)

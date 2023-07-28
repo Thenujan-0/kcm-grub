@@ -20,6 +20,7 @@ class GrubData : public QObject
     Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
     Q_PROPERTY(QList<Language *> languages MEMBER m_languages NOTIFY dataChanged);
     Q_PROPERTY(Language *language MEMBER m_language NOTIFY dataChanged);
+    Q_PROPERTY(bool generateRecoveryEntries MEMBER generateRecoveryEntries NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
@@ -32,6 +33,7 @@ public:
     void save();
     void load();
     bool setValue(QString key, QString val, QString readFileName = "");
+    bool unsetValue(QString key, QString readFileName = "");
     void initCache();
     void setCurrentFile(const QString &fileName);
     QString getValue(const QString &key);
@@ -86,6 +88,8 @@ private:
     QString m_currFileName;
     Language *m_language;
     Language *m_language_orig;
+    bool generateRecoveryEntries;
+    bool generateRecoveryEntries_orig;
 
     QHash<QString, QString> m_env;
     bool m_memtest;
@@ -101,11 +105,11 @@ private:
 class Language : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name MEMBER name CONSTANT);
+    Q_PROPERTY(QString formattedName READ formattedName CONSTANT);
 
 public:
     Language(const QString &argName, const QString &argLocale);
-
+    QString formattedName();
     QString name;
     QString locale;
 };

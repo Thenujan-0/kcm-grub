@@ -181,11 +181,27 @@ Kirigami.FormLayout{
         Layout.preferredHeight:Kirigami.Units.largeSpacing
     }
 
+
+
+    QQC2.ComboBox{
+        id:cob_languages
+        model:kcm.grubData.languages
+        textRole:"formattedName"
+        Kirigami.FormData.label: "Language: "
+        currentIndex:kcm.grubData.languages.indexOf(kcm.grubData.language)
+        
+
+
+        onActivated: {
+            kcm.grubData.language = kcm.grubData.languages[cob_languages.currentIndex]
+            kcm.settingsChanged()
+        }
+    }
     QQC2.CheckBox{
         id: chb_lookForOtherOs
         objectName:"chb_lookForOtherOs"
         Kirigami.FormData.label: "Generated entries:"
-        text: "Look for other Operating systems"
+        text: "Look for other Operating Systems"
         checked: kcm.grubData.lookForOtherOs
         onClicked: {
             kcm.grubData.lookForOtherOs = checked
@@ -202,15 +218,13 @@ Kirigami.FormLayout{
         }
     }
 
-    QQC2.ComboBox{
-        id:cob_languages
-        model:kcm.grubData.languages
-        textRole:"name"
-        Kirigami.FormData.label: "Language: "
-        currentIndex:kcm.grubData.languages.indexOf(kcm.grubData.language)
-
-        onActivated: {
-            kcm.grubData.language = kcm.grubData.languages[cob_languages.currentIndex]
+    QQC2.CheckBox{
+        id: chb_generate_recovery
+        objectName:"chb_generate_recovery"
+        text: "Generate recovery entries"
+        checked: kcm.grubData.generateRecoveryEntries
+        onClicked: {
+            kcm.grubData.generateRecoveryEntries = checked
             kcm.settingsChanged()
         }
     }
