@@ -201,4 +201,17 @@ Kirigami.FormLayout{
             }
         }
     }
+
+    QQC2.ComboBox{
+        id:cob_languages
+        model:kcm.grubData.languages
+        textRole:"name"
+        Kirigami.FormData.label: "Language: "
+        currentIndex:kcm.grubData.languages.indexOf(kcm.grubData.language)
+
+        onActivated: {
+            kcm.grubData.language = kcm.grubData.languages[cob_languages.currentIndex]
+            kcm.settingsChanged()
+        }
+    }
 }

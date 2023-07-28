@@ -12,3 +12,4 @@ install(TARGETS kcmgrub2helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
 kauth_install_helper_files(kcmgrub2helper org.kde.kcontrol.kcmgrub2 root)
 kauth_install_actions(org.kde.kcontrol.kcmgrub2 kcmgrub2.actions)
 
+target_link_libraries(kcmgrub2helper KF5::KIOCore KF5::KIOFileWidgets KF5::KIOWidgets KF5::KIONTLM)

@@ -6,7 +6,7 @@
 #include <entry.h>
 
 QStringList getAllOsEntries();
-
+class Language;
 class GrubData : public QObject
 {
     Q_OBJECT
@@ -18,6 +18,8 @@ class GrubData : public QObject
     Q_PROPERTY(bool immediateTimeout MEMBER m_immediateTimeout NOTIFY dataChanged);
     Q_PROPERTY(QString timeoutStyle MEMBER m_timeoutStyle NOTIFY dataChanged);
     Q_PROPERTY(bool lookForOtherOs MEMBER m_lookForOtherOs NOTIFY dataChanged);
+    Q_PROPERTY(QList<Language *> languages MEMBER m_languages NOTIFY dataChanged);
+    Q_PROPERTY(Language *language MEMBER m_language NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
@@ -56,6 +58,8 @@ private:
     void parseSettings(const QString &config);
     void showLocales();
 
+    Language *findLanguage(const QString &locale);
+
     // Adds default values for keys that don't exist in /etc/default/grub
     void addDefaultValues();
     void parseValues();
@@ -80,6 +84,8 @@ private:
     QList<Entry *> m_osEntries;
     QStringList m_issues;
     QString m_currFileName;
+    Language *m_language;
+    Language *m_language_orig;
 
     QHash<QString, QString> m_env;
     bool m_memtest;
@@ -89,4 +95,19 @@ private:
     bool m_resolutionsEmpty;
     bool m_resolutionsForceRead;
     QStringList m_locales;
+    QList<Language *> m_languages;
 };
+
+class Language : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QString name MEMBER name CONSTANT);
+
+public:
+    Language(const QString &argName, const QString &argLocale);
+
+    QString name;
+    QString locale;
+};
+bool operator==(const Language &left, const Language &right);
+Q_DECLARE_TYPEINFO(Language, Q_MOVABLE_TYPE);

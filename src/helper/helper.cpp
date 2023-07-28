@@ -13,6 +13,7 @@
 
 // KDE
 #include <KAuth/HelperSupport>
+#include <KIO/CommandLauncherJob>
 #include <KLocalizedString>
 #include <KProcess>
 
@@ -167,6 +168,20 @@ ActionReply Helper::save(QVariantMap args)
     });
     process->waitForFinished(-1);
     reply.addData("exitCode", process->exitCode());
+    if (!args.value("lang").toString().isEmpty()) {
+        QFile file(grubEnvPath());
+        if (!file.exists()) {
+            auto job = KIO::CommandLauncherJob("grub-editenv",
+                                               QStringList() << "-"
+                                                             << "create");
+            job.exec();
+        }
+        auto job = KIO::CommandLauncherJob("grub-editenv",
+                                           QStringList() << "-"
+                                                         << "set"
+                                                         << "lang=" + args.value("lang").toString());
+        job.exec();
+    }
     return reply;
 }
 

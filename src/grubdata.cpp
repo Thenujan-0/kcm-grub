@@ -102,9 +102,7 @@ void GrubData::deleteEntries()
 
 void GrubData::showLocales()
 {
-    // ui->combobox_language->clear();
-    // ui->combobox_language->addItem(i18nc("@item:inlistbox", "No translation"), QString());
-
+    m_languages << new Language("No translation", "");
     for (const QString &locale : qAsConst(m_locales)) {
         QString language = QLocale(locale).nativeLanguageName();
         if (language.isEmpty()) {
@@ -113,8 +111,7 @@ void GrubData::showLocales()
                 language = QLocale(locale.split(QLatin1Char('@')).first().split(QLatin1Char('_')).first()).nativeLanguageName();
             }
         }
-        // qWarning() << locale << " " << language;
-        // ui->combobox_language->addItem(QStringLiteral("%1 (%2)").arg(language, locale), locale);
+        m_languages << new Language(language, locale);
     }
 }
 
@@ -248,6 +245,22 @@ Entry *GrubData::findEntry(const QString &value)
     return entry;
 }
 
+Language *GrubData::findLanguage(const QString &locale)
+{
+    QList<Language *>::iterator i;
+    for (i = m_languages.begin(); i != m_languages.end(); ++i) {
+        Language *language = *i;
+        qWarning() << language->locale << language->name;
+        if (language->locale == locale) {
+            return language;
+        }
+    }
+    qWarning() << "Couldn't find locale, invalid locale " << locale;
+    Language *language = new Language(locale, locale);
+    m_languages << language;
+    return language;
+}
+
 void GrubData::parseValues()
 {
     m_timeoutStyle_orig = unquoteWord(m_settings.value("GRUB_TIMEOUT_STYLE"));
@@ -267,13 +280,14 @@ void GrubData::parseValues()
     }
 
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
-
+    m_language_orig = findLanguage(unquoteWord(m_env.value("lang")));
     m_timeout = m_timeout_orig;
     m_immediateTimeout = m_timeout == 0;
     m_timeoutStyle = m_timeoutStyle_orig;
     m_defaultEntryType = m_defaultEntryType_orig;
     m_lookForOtherOs = m_lookForOtherOs_orig;
     m_defaultEntry = m_defaultEntry_orig;
+    m_language = m_language_orig;
 }
 
 void GrubData::save()
@@ -315,6 +329,9 @@ void GrubData::save()
     saveAction.addArgument("saveFile", m_currFileName);
     saveAction.addArgument("euid", geteuid());
     saveAction.addArgument("busAddress", qgetenv("DBUS_SESSION_BUS_ADDRESS"));
+    if (m_language != m_language_orig) {
+        saveAction.addArgument("lang", m_language->locale);
+    }
     KAuth::ExecuteJob *job = saveAction.execute();
     job->start();
     connect(job, &KAuth::ExecuteJob::result, this, [this, job]() {
@@ -420,7 +437,7 @@ bool GrubData::isDirty()
     }
 
     return (timeout != m_timeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig) || (m_defaultEntryType != m_defaultEntryType_orig)
-        || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle());
+        || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle()) || (m_language != m_language_orig);
 }
 
 void GrubData::readAll(){
@@ -443,7 +460,7 @@ void GrubData::readAll(){
     fileContents = readFile(grubEnvPath());
     if (fileContents.has_value()) {
         parseEnv(fileContents.value());
-    } else {
+    } else if (QFile(grubEnvPath()).exists()) {
         operations |= EnvironmentFile;
     }
     if (QFile::exists(grubMemtestPath())) {
@@ -518,9 +535,8 @@ void GrubData::readAll(){
             m_locales = loadJob->data().value(QStringLiteral("locales")).toStringList();
         }
     }
-
-    parseValues();
     showLocales();
+    parseValues();
     Q_EMIT osEntriesChanged();
     Q_EMIT dataChanged();
 }
@@ -553,4 +569,15 @@ void GrubData::parseEnv(const QString &config)
         }
         m_env[line.section(QLatin1Char('='), 0, 0)] = line.section(QLatin1Char('='), 1);
     }
+}
+
+Language::Language(const QString &argName, const QString &argLocale)
+{
+    name = argName;
+    locale = argLocale;
+}
+
+bool operator==(const Language &left, const Language &right)
+{
+    return left.locale == right.locale;
 }
