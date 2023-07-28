@@ -418,8 +418,6 @@ void GrubData::initCache()
     }
 
     QFile::copy(m_currFileName, filePath);
-
-    // qWarning() << PATH;
 }
 
 void GrubData::setCurrentFile(const QString &fileName)
@@ -492,6 +490,7 @@ void GrubData::readAll(){
             qCritical() << "KAuth error!";
             qCritical() << "Error code:" << loadJob->error();
             qCritical() << "Error description:" << loadJob->errorText();
+            Q_EMIT error(i18n("An error occured when loading configs"));
             return;
         }
 
@@ -505,6 +504,7 @@ void GrubData::readAll(){
                 qCritical() << "Helper failed to read file:" << grubMenuPath();
                 qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("menuError")).toInt();
                 qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("menuErrorString")).toString();
+                Q_EMIT error(i18n("An error occured when loading configs"));
             }
         }
         if (operations.testFlag(ConfigurationFile)) {
@@ -514,6 +514,7 @@ void GrubData::readAll(){
                 qCritical() << "Helper failed to read file:" << grubConfigPath();
                 qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("configError")).toInt();
                 qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("configErrorString")).toString();
+                Q_EMIT error(i18n("An error occured when loading configs"));
             }
         }
         if (operations.testFlag(EnvironmentFile)) {
@@ -523,6 +524,7 @@ void GrubData::readAll(){
                 qCritical() << "Helper failed to read file:" << grubEnvPath();
                 qCritical() << "Error code:" << loadJob->data().value(QStringLiteral("envError")).toInt();
                 qCritical() << "Error description:" << loadJob->data().value(QStringLiteral("envErrorString")).toString();
+                Q_EMIT error(i18n("An error occured when loading configs"));
             }
         }
         if (operations.testFlag(MemtestFile)) {
@@ -557,6 +559,7 @@ void GrubData::changeMenuPermissions()
         qCritical() << "KAuth error!";
         qCritical() << "Error code:" << loadJob->error();
         qCritical() << "Error description:" << loadJob->errorText();
+        Q_EMIT error(i18n("An error occured when changing permissions"));
         return;
     }
 }
