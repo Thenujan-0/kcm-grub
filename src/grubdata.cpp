@@ -17,7 +17,7 @@
 #include <KAuth/ExecuteJob>
 #include <KIO/CopyJob>
 #include <KJob>
-
+#include <KLocalizedString.h>
 #include <unistd.h>
 
 QString HOME = qgetenv("HOME");

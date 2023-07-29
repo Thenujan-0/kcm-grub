@@ -17,28 +17,44 @@ KCM.SimpleKCM {
 
     implicitWidth: Kirigami.Units.largeSpacing * 12 +cob_os_entries.implicitWidth
     implicitHeight: Kirigami.Units.largeSpacing * 70
-    header: Kirigami.InlineMessage {
-        id: errorMessage
+    header: ColumnLayout{
+        implicitHeight:bar.implicitHeight+errorMessage.implicitHeight+ spacing
         
-        showCloseButton: true
-
-        Connections {
-            target: kcm.grubData
-            function onError(message){
-                errorMessage.type = Kirigami.MessageType.Error
-                errorMessage.visible = true
-                errorMessage.text = message
+        QQC2.TabBar {
+            id: bar
+            width: parent.width
+            currentIndex: 0
+            QQC2.TabButton {
+                text: i18n("General")
+            }
+            QQC2.TabButton {
+                text: i18n("Appearance")
             }
         }
+        Kirigami.InlineMessage {
+            id: errorMessage
+            Layout.fillWidth: true
+            
+            showCloseButton: true
 
-        property var fixItAction: Kirigami.Action {
-                property string fileName
-                text: i18n("Learn more")
-                icon.name: "help-hint"
-                onTriggered: {
-                    errorMessage.visible = false
-                    sheetOverrideWarning.open()
+            Connections {
+                target: kcm.grubData
+                function onError(message){
+                    errorMessage.type = Kirigami.MessageType.Error
+                    errorMessage.visible = true
+                    errorMessage.text = message
                 }
+            }
+
+            property var fixItAction: Kirigami.Action {
+                    property string fileName
+                    text: i18n("Learn more")
+                    icon.name: "help-hint"
+                    onTriggered: {
+                        errorMessage.visible = false
+                        sheetOverrideWarning.open()
+                    }
+            }
         }
     }
 
@@ -149,8 +165,14 @@ KCM.SimpleKCM {
             }
         }
     }
+    StackLayout {
+        width: parent.width
+        currentIndex: bar.currentIndex
+        FormLayout{
+            
+        }
+        Appearance{}
 
-    FormLayout{
-        
     }
+    
 }
