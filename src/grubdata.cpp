@@ -295,6 +295,8 @@ void GrubData::parseValues()
     if (m_grubResolution_orig.isEmpty()) {
         m_grubResolution_orig = QStringLiteral("auto");
     }
+    m_grubResolutions.clear();
+
     if (m_grubResolution_orig != QLatin1String("auto") && !m_resolutions.contains(m_grubResolution_orig)) {
         m_resolutions.append(m_grubResolution_orig);
     }
@@ -320,10 +322,6 @@ void GrubData::parseValues()
     m_grubResolutions.clear();
     m_linuxKernelResolutions.clear();
 
-    m_grubResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"};
-    m_linuxKernelResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"} << Resolution{"Unspecified", ""}
-                             << Resolution{"Boot in text mode", "text"} << Resolution{"Keep GRUB's resolution", "keep"};
-
     KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
     connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
         configReceived(op);
@@ -332,6 +330,12 @@ void GrubData::parseValues()
 
 void GrubData::configReceived(KScreen::ConfigOperation *op)
 {
+    m_grubResolutions.clear();
+    m_linuxKernelResolutions.clear();
+    m_grubResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"};
+    m_linuxKernelResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"} << Resolution{"Unspecified", ""}
+                             << Resolution{"Boot in text mode", "text"} << Resolution{"Keep GRUB's resolution", "keep"};
+
     auto config = op->config();
     for (const auto &output : config->outputs()) {
         const auto modes = output->modes();
@@ -342,12 +346,11 @@ void GrubData::configReceived(KScreen::ConfigOperation *op)
         for (const auto &key : modeKeys) {
             auto mode = *modes.find(key);
 
-            auto name = QStringLiteral("%1x%2x%3")
-                            .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
+            auto name = QStringLiteral("%1x%2").arg(QString::number(mode->size().width()), QString::number(mode->size().height()));
             m_resolutions << name;
         }
     }
-    m_resolutions.removeDuplicates();
+
     for (const QString &resolution : m_resolutions) {
         m_grubResolutions << Resolution{resolution, resolution};
         m_linuxKernelResolutions << Resolution{resolution, resolution};
@@ -527,7 +530,6 @@ bool GrubData::isDirty()
 void GrubData::readAll(){
     optional<QString> fileContents;
     LoadOperations operations = NoOperation;
-    // qWarning() << "File contents are being read";
 
     fileContents = readFile(grubMenuPath());
     if (fileContents.has_value()) {
