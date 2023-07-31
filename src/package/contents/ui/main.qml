@@ -15,7 +15,7 @@ import org.kde.plasma.kcm.data 1.0
 KCM.SimpleKCM {
     id: root
 
-    implicitWidth: Kirigami.Units.largeSpacing * 12 +cob_os_entries.implicitWidth
+    implicitWidth: formLayout.implicitWidth+ 2 * Kirigami.Units.largeSpacing
     implicitHeight: Kirigami.Units.largeSpacing * 70
     header: ColumnLayout{
         implicitHeight:bar.implicitHeight+errorMessage.implicitHeight+ spacing
@@ -169,7 +169,7 @@ KCM.SimpleKCM {
         width: parent.width
         currentIndex: bar.currentIndex
         FormLayout{
-            
+            id: formLayout
         }
         Appearance{}
 
