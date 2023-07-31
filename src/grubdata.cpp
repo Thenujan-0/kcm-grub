@@ -262,7 +262,6 @@ Language *GrubData::findLanguage(const QString &locale)
     QList<Language *>::iterator i;
     for (i = m_languages.begin(); i != m_languages.end(); ++i) {
         Language *language = *i;
-        qWarning() << language->locale << language->name;
         if (language->locale == locale) {
             return language;
         }
@@ -368,7 +367,6 @@ void GrubData::save()
             setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry->fullNumTitle()));
         }
     } else if (m_defaultEntryType_orig == DefaultEntryType::Predefined && m_defaultEntry != m_defaultEntry_orig) {
-        // qWarning() << m_defaultEntry;
         setValue("GRUB_DEFAULT", quoteWord(m_defaultEntry->fullNumTitle()));
     }
 
@@ -398,10 +396,19 @@ void GrubData::save()
         setValue("GRUB_GFXPAYLOAD_LINUX", m_linuxKernelResolution);
     }
 
+    QString sourceFilePath = qgetenv("HOME") + "/.local/share/grub-editor-cpp" + "/grubToWrite.txt";
+    bool rootCopyNeeded = true;
+    QFile file(m_currFileName);
+    if (file.permissions() & QFile::WriteUser) {
+        bool ok = copyTo(sourceFilePath, m_currFileName);
+        rootCopyNeeded = !ok;
+    }
+
     KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
     saveAction.setHelperId("org.kde.kcontrol.kcmgrub2");
-    saveAction.addArgument("homeDir", qgetenv("HOME"));
+    saveAction.addArgument("sourceFilePath", sourceFilePath);
     saveAction.addArgument("saveFile", m_currFileName);
+    saveAction.addArgument("rootCopyNeeded", rootCopyNeeded);
     saveAction.addArgument("euid", geteuid());
     saveAction.addArgument("busAddress", qgetenv("DBUS_SESSION_BUS_ADDRESS"));
 

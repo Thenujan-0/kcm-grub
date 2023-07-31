@@ -126,9 +126,7 @@ ActionReply Helper::save(QVariantMap args)
     if (dir.exists())
         dir.removeRecursively();
 
-    const QString PATH = args.value("homeDir").toString() + "/.local/share/grub-editor-cpp";
-
-    QString filePath = PATH + "/grubToWrite.txt";
+    QString filePath = args.value("sourceFilePath").toString();
     ActionReply reply;
 
     if (!QFile::exists(filePath)) {
@@ -137,17 +135,16 @@ ActionReply Helper::save(QVariantMap args)
     }
     const QString saveFile = args.value("saveFile").toString();
 
-    if (QFile::exists(saveFile)) {
-        QFile::remove(saveFile);
+    if (args.value("rootCopyNeeded").toBool()) {
+        copyTo(filePath, saveFile);
     }
+
     QString busAddress = args.value("busAddress").toString();
 
     // Necessary to connect to user's session bus
     seteuid(args.value("euid").value<uid_t>());
     QDBusConnection bus = QDBusConnection::connectToBus(busAddress, "userbus");
     seteuid(0);
-
-    QFile::copy(filePath, saveFile);
 
     QDBusMessage m = QDBusMessage::createMethodCall("org.kde.kcontrol.kcmgrub", "/internal", "", "emitSavingStarted");
     bus.send(m);

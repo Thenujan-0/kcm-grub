@@ -1,7 +1,6 @@
 
 # Set Sources
-set(kcmgrub2helper_SRCS helper.cpp)
-
+set(kcmgrub2helper_SRCS helper.cpp ../common.h ../common.cpp)
 
 # Build & Link
 add_executable(kcmgrub2helper ${kcmgrub2helper_SRCS})
