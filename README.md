@@ -14,7 +14,12 @@ Warning: Do not install it along with [kcm-grub2](https://invent.kde.org/system/
 
 ## Build instructions
 `mkdir build
+
 cd build
+
 cmake ..
+
 sudo make install
-kcmshell5 kcm_grub`
+
+kcmshell5 kcm_grub
+`
