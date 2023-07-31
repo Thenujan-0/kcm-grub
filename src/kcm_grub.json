@@ -3,7 +3,7 @@
     "KPlugin": {
         "Description": "GRUB2",
         "Icon": "configure",
-        "Name": "GRUB2",
+        "Name": "GRUB",
         "ServiceTypes": [
             "KCModule"
         ]

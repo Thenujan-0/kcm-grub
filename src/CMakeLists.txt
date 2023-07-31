@@ -1,18 +1,18 @@
 
-set(KCM_GRUB2_SRCS
-    kcmgrub2.cpp
+set(KCM_GRUB_SRCS
+    kcmgrub.cpp
     common.cpp
     entry.cpp
     grubdata.cpp
 )
 add_subdirectory(helper)
-add_library(kcm_grub2 MODULE ${KCM_GRUB2_SRCS})
+add_library(kcm_grub MODULE ${KCM_GRUB_SRCS})
 
-kcmutils_generate_desktop_file(kcm_grub2)
+kcmutils_generate_desktop_file(kcm_grub)
 
-target_compile_definitions(kcm_grub2 PRIVATE -DPROJECT_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(kcm_grub PRIVATE -DPROJECT_VERSION="${PROJECT_VERSION}")
 
-target_link_libraries(kcm_grub2
+target_link_libraries(kcm_grub
     KF5::I18n
     KF5::KCMUtils
     KF5::KIOGui
@@ -29,8 +29,8 @@ target_link_libraries(kcm_grub2
 add_subdirectory(tests)
 
 
-kpackage_install_package(package kcm_grub2 kcms)
+kpackage_install_package(package kcm_grub kcms)
 
 
-install(TARGETS kcm_grub2 DESTINATION ${KDE_INSTALL_PLUGINDIR}/plasma/kcms/systemsettings)
+install(TARGETS kcm_grub DESTINATION ${KDE_INSTALL_PLUGINDIR}/plasma/kcms/systemsettings)
 

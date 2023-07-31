@@ -404,8 +404,8 @@ void GrubData::save()
         rootCopyNeeded = !ok;
     }
 
-    KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
-    saveAction.setHelperId("org.kde.kcontrol.kcmgrub2");
+    KAuth::Action saveAction("org.kde.kcontrol.kcmgrub.save");
+    saveAction.setHelperId("org.kde.kcontrol.kcmgrub");
     saveAction.addArgument("sourceFilePath", sourceFilePath);
     saveAction.addArgument("saveFile", m_currFileName);
     saveAction.addArgument("rootCopyNeeded", rootCopyNeeded);
@@ -562,8 +562,8 @@ void GrubData::readAll(){
         operations |= Locales;
     }
     if (operations) {
-        KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub2.load"));
-        loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub2"));
+        KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub.load"));
+        loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub"));
         loadAction.addArgument(QStringLiteral("operations"), (int)(operations));
 
         KAuth::ExecuteJob *loadJob = loadAction.execute();
@@ -631,8 +631,8 @@ void GrubData::readAll(){
 
 void GrubData::changeMenuPermissions()
 {
-    KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub2.changemenupermissions"));
-    loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub2"));
+    KAuth::Action loadAction(QStringLiteral("org.kde.kcontrol.kcmgrub.changemenupermissions"));
+    loadAction.setHelperId(QStringLiteral("org.kde.kcontrol.kcmgrub"));
     loadAction.addArgument(QStringLiteral("filePath"), grubMenuPath());
 
     KAuth::ExecuteJob *loadJob = loadAction.execute();

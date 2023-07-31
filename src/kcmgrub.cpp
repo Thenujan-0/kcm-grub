@@ -6,7 +6,7 @@
     SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "kcmgrub2.h"
+#include "kcmgrub.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -15,15 +15,14 @@
 #include <KLocalizedString>
 #include <KPluginFactory>
 
-#include <common.h>
 #include "config.h"
+#include <common.h>
 #include <entry.h>
 #include <grubdata.h>
 
+K_PLUGIN_FACTORY_WITH_JSON(KCMTestFactory, "kcm_grub.json", registerPlugin<KcmGrub>();)
 
-K_PLUGIN_FACTORY_WITH_JSON(KCMTestFactory, "kcm_grub2.json", registerPlugin<KcmGrub2>();)
-
-KcmGrub2::KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args)
+KcmGrub::KcmGrub(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args)
     : KQuickAddons::ManagedConfigModule(parent, metaData, args)
     , m_data(new GrubData)
 {
@@ -35,35 +34,35 @@ KcmGrub2::KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVari
     setButtons(Apply);
 }
 
-KcmGrub2::~KcmGrub2()
+KcmGrub::~KcmGrub()
 {
 }
 
-GrubData *KcmGrub2::grubData() const
+GrubData *KcmGrub::grubData() const
 {
     return m_data;
 }
 
-bool KcmGrub2::isSaveNeeded() const
+bool KcmGrub::isSaveNeeded() const
 {
     return m_data->isDirty();
 }
-bool KcmGrub2::isDefaults() const
+bool KcmGrub::isDefaults() const
 {
     return true;
 }
 
-void KcmGrub2::load()
+void KcmGrub::load()
 {
     m_data->load();
     Q_EMIT settingsChanged();
 }
-void KcmGrub2::save()
+void KcmGrub::save()
 {
     m_data->save();
 }
-void KcmGrub2::defaults()
+void KcmGrub::defaults()
 {
 }
 
-#include "kcmgrub2.moc"
+#include "kcmgrub.moc"

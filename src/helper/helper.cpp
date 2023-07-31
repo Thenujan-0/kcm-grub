@@ -177,4 +177,4 @@ ActionReply Helper::changemenupermissions(QVariantMap args)
     return reply;
 }
 
-KAUTH_HELPER_MAIN("org.kde.kcontrol.kcmgrub2", Helper)
+KAUTH_HELPER_MAIN("org.kde.kcontrol.kcmgrub", Helper)

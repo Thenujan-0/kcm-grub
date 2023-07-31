@@ -1,16 +1,16 @@
-[org.kde.kcontrol.kcmgrub2.save]
+[org.kde.kcontrol.kcmgrub.save]
 Name=Save configurations
 Description= Permissions are needed to save configurations
 Policy=auth_admin
 Persistence=session
 
-[org.kde.kcontrol.kcmgrub2.load]
+[org.kde.kcontrol.kcmgrub.load]
 Name=Load configurations
 Description= Permissions are needed to save grub settings
 Policy=auth_admin
 Persistence=session
 
-[org.kde.kcontrol.kcmgrub2.changemenupermissions]
+[org.kde.kcontrol.kcmgrub.changemenupermissions]
 Name=Change menu permissions
 Description= Permissions are needed to change permissions of menu file
 Policy=auth_admin

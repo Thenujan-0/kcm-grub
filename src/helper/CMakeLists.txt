@@ -1,14 +1,14 @@
 
 # Set Sources
-set(kcmgrub2helper_SRCS helper.cpp ../common.h ../common.cpp)
+set(kcmgrubhelper_SRCS helper.cpp ../common.h ../common.cpp)
 
 # Build & Link
-add_executable(kcmgrub2helper ${kcmgrub2helper_SRCS})
-target_link_libraries(kcmgrub2helper KF5::AuthCore KF5::I18n Qt5::DBus)
+add_executable(kcmgrubhelper ${kcmgrubhelper_SRCS})
+target_link_libraries(kcmgrubhelper KF5::AuthCore KF5::I18n Qt5::DBus)
 
 # Install
-install(TARGETS kcmgrub2helper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
-kauth_install_helper_files(kcmgrub2helper org.kde.kcontrol.kcmgrub2 root)
-kauth_install_actions(org.kde.kcontrol.kcmgrub2 kcmgrub2.actions)
+install(TARGETS kcmgrubhelper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
+kauth_install_helper_files(kcmgrubhelper org.kde.kcontrol.kcmgrub root)
+kauth_install_actions(org.kde.kcontrol.kcmgrub kcmgrub.actions)
 
-target_link_libraries(kcmgrub2helper KF5::KIOCore KF5::KIOFileWidgets KF5::KIOWidgets KF5::KIONTLM)
+target_link_libraries(kcmgrubhelper KF5::KIOCore KF5::KIOFileWidgets KF5::KIOWidgets KF5::KIONTLM)

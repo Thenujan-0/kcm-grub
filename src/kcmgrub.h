@@ -3,20 +3,20 @@
 
     SPDX-License-Identifier: GPL-2.0-or-later
  */
-#ifndef KCMGRUB2_H
-#define KCMGRUB2_H
+#ifndef KCMGRUB_H
+#define KCMGRUB_H
 
 #include <KQuickAddons/ManagedConfigModule>
 #include <entry.h>
 #include <grubdata.h>
 
-class KcmGrub2 : public KQuickAddons::ManagedConfigModule
+class KcmGrub : public KQuickAddons::ManagedConfigModule
 {
     Q_OBJECT
     Q_PROPERTY(GrubData *grubData READ grubData CONSTANT)
 public:
-    explicit KcmGrub2(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args);
-    ~KcmGrub2() override;
+    explicit KcmGrub(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args);
+    ~KcmGrub() override;
     GrubData *grubData() const;
     // QJSValue dataSingleton(QQmlEngine *engine, QJSEngine *scriptEngine);
 

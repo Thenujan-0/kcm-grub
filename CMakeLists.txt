@@ -40,7 +40,7 @@ include(GRUBPaths)
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050c00)
 add_definitions(-DKF_DISABLE_DEPRECATED_BEFORE_AND_AT=0x054200)
 
-add_definitions(-DTRANSLATION_DOMAIN=\"kcm_grub2\")
+add_definitions(-DTRANSLATION_DOMAIN=\"kcm_grub\")
 add_definitions(-DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT)
 
 # kauth_install_actions(org.kde.kcontrol.kcmtest kcm_test.actions)

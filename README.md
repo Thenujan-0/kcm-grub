@@ -13,12 +13,8 @@ Current features
 Warning: Do not install it along with [kcm-grub2](https://invent.kde.org/system/kcm-grub2)
 
 ## Build instructions
-`mkdir build`
-
-`cd build`
-
-`cmake ..`
-
-`sudo make install`
-
-`kcmshell5 kcm_grub2`
+`mkdir build
+cd build
+cmake ..
+sudo make install
+kcmshell5 kcm_grub`
