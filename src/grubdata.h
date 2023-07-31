@@ -3,10 +3,27 @@
 #include <QHash>
 #include <QObject>
 
+#include <kscreen/getconfigoperation.h>
+
 #include <entry.h>
 
 QStringList getAllOsEntries();
 class Language;
+
+class Resolution
+{
+    Q_GADGET;
+    Q_PROPERTY(QString name MEMBER name);
+    Q_PROPERTY(QString value MEMBER value);
+
+public:
+    QString name;
+    QString value;
+};
+Q_DECLARE_METATYPE(Resolution);
+
+bool operator==(const Resolution &lhs, const Resolution &rhs);
+
 class GrubData : public QObject
 {
     Q_OBJECT
@@ -21,6 +38,10 @@ class GrubData : public QObject
     Q_PROPERTY(QList<Language *> languages MEMBER m_languages NOTIFY dataChanged);
     Q_PROPERTY(Language *language MEMBER m_language NOTIFY dataChanged);
     Q_PROPERTY(bool generateRecoveryEntries MEMBER generateRecoveryEntries NOTIFY dataChanged);
+    Q_PROPERTY(QList<Resolution> grubResolutions MEMBER m_grubResolutions NOTIFY resolutionsChanged);
+    Q_PROPERTY(QList<Resolution> linuxKernelResolutions MEMBER m_linuxKernelResolutions NOTIFY resolutionsChanged);
+    Q_PROPERTY(QString grubResolution MEMBER m_grubResolution NOTIFY dataChanged);
+    Q_PROPERTY(QString linuxKernelResolution MEMBER m_linuxKernelResolution NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
@@ -42,6 +63,7 @@ public:
 
 signals:
     void dataChanged();
+    void resolutionsChanged();
     void osEntriesChanged();
     void error(const QString &message);
     void savingStarted();
@@ -59,7 +81,7 @@ private:
     void readAll();
     void parseSettings(const QString &config);
     void showLocales();
-
+    void configReceived(KScreen::ConfigOperation *op);
     Language *findLanguage(const QString &locale);
 
     // Adds default values for keys that don't exist in /etc/default/grub
@@ -90,6 +112,10 @@ private:
     Language *m_language_orig;
     bool generateRecoveryEntries;
     bool generateRecoveryEntries_orig;
+    QString m_grubResolution;
+    QString m_grubResolution_orig;
+    QString m_linuxKernelResolution;
+    QString m_linuxKernelResolution_orig;
 
     QHash<QString, QString> m_env;
     bool m_memtest;
@@ -100,6 +126,8 @@ private:
     bool m_resolutionsForceRead;
     QStringList m_locales;
     QList<Language *> m_languages;
+    QList<Resolution> m_grubResolutions;
+    QList<Resolution> m_linuxKernelResolutions;
 };
 
 class Language : public QObject

@@ -1,4 +1,5 @@
 
+#include <QCollator>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDebug>
@@ -17,12 +18,22 @@
 #include <KAuth/ExecuteJob>
 #include <KIO/CopyJob>
 #include <KJob>
-#include <KLocalizedString.h>
+#include <KLocalizedString>
 #include <unistd.h>
+
+#include "kscreen/output.h"
+#include <kscreen/config.h>
+#include <kscreen/configmonitor.h>
+#include <kscreen/mode.h>
 
 QString HOME = qgetenv("HOME");
 
 static const QString TEMPDATAFILE = HOME + QString("/.local/share/grub-editor-cpp/grubToWrite.txt");
+
+bool operator==(const Resolution &lhs, const Resolution &rhs)
+{
+    return lhs.value == rhs.value;
+}
 
 GrubData::GrubData(QObject *parent)
     : m_issues(QStringList())
@@ -281,6 +292,18 @@ void GrubData::parseValues()
     }
 
     generateRecoveryEntries_orig = m_settings.value("GRUB_DISABLE_RECOVERY") == "true";
+    m_grubResolution_orig = unquoteWord(m_settings.value(QStringLiteral("GRUB_GFXMODE")));
+    if (m_grubResolution_orig.isEmpty()) {
+        m_grubResolution_orig = QStringLiteral("auto");
+    }
+    if (m_grubResolution_orig != QLatin1String("auto") && !m_resolutions.contains(m_grubResolution_orig)) {
+        m_resolutions.append(m_grubResolution_orig);
+    }
+    m_linuxKernelResolution_orig = unquoteWord(m_settings.value(QStringLiteral("GRUB_GFXPAYLOAD_LINUX")));
+    if (!m_linuxKernelResolution.isEmpty() && m_linuxKernelResolution != QLatin1String("text") && m_linuxKernelResolution != QLatin1String("keep")
+        && !m_resolutions.contains(m_linuxKernelResolution)) {
+        m_resolutions.append(m_linuxKernelResolution);
+    }
 
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
     m_language_orig = findLanguage(unquoteWord(m_settings.value("LANGUAGE")));
@@ -292,6 +315,45 @@ void GrubData::parseValues()
     m_defaultEntry = m_defaultEntry_orig;
     m_language = m_language_orig;
     generateRecoveryEntries = generateRecoveryEntries_orig;
+    m_grubResolution = m_grubResolution_orig;
+    m_linuxKernelResolution = m_linuxKernelResolution_orig;
+
+    m_grubResolutions.clear();
+    m_linuxKernelResolutions.clear();
+
+    m_grubResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"};
+    m_linuxKernelResolutions << Resolution{"Custom...", "custom"} << Resolution{"Auto", "auto"} << Resolution{"Unspecified", ""}
+                             << Resolution{"Boot in text mode", "text"} << Resolution{"Keep GRUB's resolution", "keep"};
+
+    KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
+    connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
+        configReceived(op);
+    });
+}
+
+void GrubData::configReceived(KScreen::ConfigOperation *op)
+{
+    auto config = op->config();
+    for (const auto &output : config->outputs()) {
+        const auto modes = output->modes();
+        auto modeKeys = modes.keys();
+        QCollator collator;
+        collator.setNumericMode(true);
+        std::sort(modeKeys.begin(), modeKeys.end(), collator);
+        for (const auto &key : modeKeys) {
+            auto mode = *modes.find(key);
+
+            auto name = QStringLiteral("%1x%2x%3")
+                            .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
+            m_resolutions << name;
+        }
+    }
+    m_resolutions.removeDuplicates();
+    for (const QString &resolution : m_resolutions) {
+        m_grubResolutions << Resolution{resolution, resolution};
+        m_linuxKernelResolutions << Resolution{resolution, resolution};
+        Q_EMIT resolutionsChanged();
+    }
 }
 
 void GrubData::save()
@@ -328,6 +390,12 @@ void GrubData::save()
     }
     if (m_language != m_language_orig) {
         setValue("LANGUAGE", m_language->locale);
+    }
+    if (m_grubResolution != m_grubResolution_orig) {
+        setValue("GRUB_GFXMODE", m_grubResolution);
+    }
+    if (m_linuxKernelResolution != m_linuxKernelResolution_orig) {
+        setValue("GRUB_GFXPAYLOAD_LINUX", m_linuxKernelResolution);
     }
 
     KAuth::Action saveAction("org.kde.kcontrol.kcmgrub2.save");
@@ -438,9 +506,15 @@ bool GrubData::isDirty()
     if (m_immediateTimeout) {
         timeout = 0.0;
     }
-
-    return (timeout != m_timeout_orig) || (m_lookForOtherOs != m_lookForOtherOs_orig) || (m_defaultEntryType != m_defaultEntryType_orig)
-        || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle()) || (m_language != m_language_orig);
+    // clang-format off
+    return (timeout != m_timeout_orig) 
+        || (m_lookForOtherOs != m_lookForOtherOs_orig) 
+        || (m_defaultEntryType != m_defaultEntryType_orig)
+        || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle()) 
+        || (m_language != m_language_orig)
+        || (m_grubResolution != m_grubResolution_orig)
+        || (m_linuxKernelResolution != m_linuxKernelResolution_orig);
+    // clang-format on
 }
 
 void GrubData::readAll(){

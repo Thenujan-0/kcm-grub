@@ -17,6 +17,7 @@ target_link_libraries(kcm_grub2
     KF5::KCMUtils
     KF5::KIOGui
     KF5::NewStuff
+    KF5::Screen
     KF5::QuickAddons
     KF5::AuthCore
     KF5::KIOCore
@@ -26,6 +27,7 @@ target_link_libraries(kcm_grub2
 )
 
 add_subdirectory(tests)
+
 
 kpackage_install_package(package kcm_grub2 kcms)
 

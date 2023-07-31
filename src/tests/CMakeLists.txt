@@ -24,6 +24,7 @@ set(TEST_LIBS stdc++fs
     KF5::KIOCore
     KF5::KIOWidgets
     KF5::KIOFileWidgets
+    KF5::Screen
 )
 
 set(TEST_NAME testsetvalue)
