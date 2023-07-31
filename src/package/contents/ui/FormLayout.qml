@@ -6,6 +6,11 @@ import QtQuick.Layouts 1.15
 import org.kde.plasma.kcm.data 1.0
 
 Kirigami.FormLayout{
+
+    Kirigami.Separator {
+        Kirigami.FormData.label: i18nc("@title:group", "Default entry")
+        Kirigami.FormData.isSection: true
+    }
     RowLayout{
         Kirigami.FormData.label:"Default entry:"
 
@@ -53,8 +58,9 @@ Kirigami.FormLayout{
         }
     }
 
-    Item{
-        Layout.preferredHeight:Kirigami.Units.largeSpacing
+    Kirigami.Separator {
+        Kirigami.FormData.label: i18nc("@title:group", "Timeout and Menu")
+        Kirigami.FormData.isSection: true
     }
 
     QQC2.CheckBox{
@@ -177,11 +183,10 @@ Kirigami.FormLayout{
         }
     }
 
-    Item{
-        Layout.preferredHeight:Kirigami.Units.largeSpacing
+     Kirigami.Separator {
+        Kirigami.FormData.label: i18nc("@title:group", "Generated entries")
+        Kirigami.FormData.isSection: true
     }
-
-
 
     QQC2.ComboBox{
         id:cob_languages
@@ -200,7 +205,6 @@ Kirigami.FormLayout{
     QQC2.CheckBox{
         id: chb_lookForOtherOs
         objectName:"chb_lookForOtherOs"
-        Kirigami.FormData.label: "Generated entries:"
         text: "Look for other Operating Systems"
         checked: kcm.grubData.lookForOtherOs
         onClicked: {
