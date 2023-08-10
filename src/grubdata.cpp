@@ -308,6 +308,13 @@ void GrubData::parseValues()
 
     m_lookForOtherOs_orig = !(unquoteWord(m_settings["GRUB_DISABLE_OS_PROBER"]) == "true");
     m_language_orig = findLanguage(unquoteWord(m_settings.value("LANGUAGE")));
+
+    m_colorNormalForeground_orig = unquoteWord(m_settings.value("GRUB_COLOR_NORMAL")).split(QLatin1Char('/'))[0];
+    m_colorNormalBackground_orig = unquoteWord(m_settings.value("GRUB_COLOR_NORMAL")).split(QLatin1Char('/'))[1];
+
+    m_colorHighlightForeground_orig = unquoteWord(m_settings.value("GRUB_COLOR_HIGHLIGHT")).split(QLatin1Char('/'))[0];
+    m_colorHighlightBackground_orig = unquoteWord(m_settings.value("GRUB_COLOR_HIGHLIGHT")).split(QLatin1Char('/'))[1];
+
     m_timeout = m_timeout_orig;
     m_immediateTimeout = m_timeout == 0;
     m_timeoutStyle = m_timeoutStyle_orig;
@@ -318,7 +325,10 @@ void GrubData::parseValues()
     generateRecoveryEntries = generateRecoveryEntries_orig;
     m_grubResolution = m_grubResolution_orig;
     m_linuxKernelResolution = m_linuxKernelResolution_orig;
-
+    m_colorNormalForeground = m_colorNormalForeground_orig;
+    m_colorHighlightForeground = m_colorHighlightForeground_orig;
+    m_colorNormalBackground = m_colorNormalBackground_orig;
+    m_colorHighlightBackground = m_colorHighlightBackground_orig;
     m_grubResolutions.clear();
     m_linuxKernelResolutions.clear();
 
@@ -397,6 +407,12 @@ void GrubData::save()
     }
     if (m_linuxKernelResolution != m_linuxKernelResolution_orig) {
         setValue("GRUB_GFXPAYLOAD_LINUX", m_linuxKernelResolution);
+    }
+    if (m_colorHighlightBackground != m_colorHighlightBackground_orig || m_colorHighlightForeground != m_colorHighlightForeground_orig) {
+        setValue("GRUB_COLOR_HIGHLIGHT", quoteWord(m_colorHighlightForeground + QLatin1Char('/') + m_colorHighlightBackground));
+    }
+    if (m_colorNormalBackground != m_colorNormalBackground_orig || m_colorNormalForeground != m_colorNormalForeground_orig) {
+        setValue("GRUB_COLOR_NORMAL", quoteWord(m_colorNormalForeground + QLatin1Char('/') + m_colorNormalBackground));
     }
 
     QString sourceFilePath = qgetenv("HOME") + "/.local/share/grub-editor-cpp" + "/grubToWrite.txt";
@@ -523,7 +539,11 @@ bool GrubData::isDirty()
         || (m_defaultEntry->fullTitle() != m_defaultEntry_orig->fullTitle()) 
         || (m_language != m_language_orig)
         || (m_grubResolution != m_grubResolution_orig)
-        || (m_linuxKernelResolution != m_linuxKernelResolution_orig);
+        || (m_linuxKernelResolution != m_linuxKernelResolution_orig)
+        || (m_colorHighlightBackground != m_colorHighlightBackground_orig)
+        || (m_colorHighlightForeground != m_colorHighlightForeground_orig)
+        || (m_colorNormalBackground != m_colorNormalBackground_orig)
+        || (m_colorNormalForeground != m_colorNormalForeground_orig);
     // clang-format on
 }
 

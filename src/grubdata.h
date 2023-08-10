@@ -42,6 +42,10 @@ class GrubData : public QObject
     Q_PROPERTY(QList<Resolution> linuxKernelResolutions MEMBER m_linuxKernelResolutions NOTIFY resolutionsChanged);
     Q_PROPERTY(QString grubResolution MEMBER m_grubResolution NOTIFY dataChanged);
     Q_PROPERTY(QString linuxKernelResolution MEMBER m_linuxKernelResolution NOTIFY dataChanged);
+    Q_PROPERTY(QString colorNormalForeground MEMBER m_colorNormalForeground NOTIFY dataChanged);
+    Q_PROPERTY(QString colorNormalBackground MEMBER m_colorNormalBackground NOTIFY dataChanged);
+    Q_PROPERTY(QString colorHighlightForeground MEMBER m_colorHighlightForeground NOTIFY dataChanged);
+    Q_PROPERTY(QString colorHighlightBackground MEMBER m_colorHighlightBackground NOTIFY dataChanged);
 
 public:
     explicit GrubData(QObject *parent = nullptr);
@@ -112,10 +116,19 @@ private:
     Language *m_language_orig;
     bool generateRecoveryEntries;
     bool generateRecoveryEntries_orig;
+
     QString m_grubResolution;
     QString m_grubResolution_orig;
     QString m_linuxKernelResolution;
     QString m_linuxKernelResolution_orig;
+    QString m_colorNormalForeground;
+    QString m_colorNormalForeground_orig;
+    QString m_colorNormalBackground;
+    QString m_colorNormalBackground_orig;
+    QString m_colorHighlightForeground;
+    QString m_colorHighlightForeground_orig;
+    QString m_colorHighlightBackground;
+    QString m_colorHighlightBackground_orig;
 
     QHash<QString, QString> m_env;
     bool m_memtest;

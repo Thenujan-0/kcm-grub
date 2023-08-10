@@ -12,7 +12,7 @@ import org.kde.kcm 1.4 as KCM
 import org.kde.kirigami 2.20 as Kirigami
 import org.kde.plasma.kcm.data 1.0
 
-KCM.SimpleKCM {
+KCM.AbstractKCM {
     id: root
 
     implicitWidth: formLayout.implicitWidth+ 2 * Kirigami.Units.largeSpacing

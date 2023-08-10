@@ -12,13 +12,13 @@ Kirigami.FormLayout{
         Kirigami.FormData.isSection: true
     }
     RowLayout{
-        Kirigami.FormData.label:"Default entry:"
+        Kirigami.FormData.label: "Default entry:"
 
         QQC2.RadioButton{
             id:rb_pre_defined
             // checked:kcm.grubData.defaultEntryType == DefaultEntry.Predefined
             Binding on checked { value: kcm.grubData.defaultEntryType == DefaultEntry.Predefined }
-            text:"predefined"
+            text: "predefined"
 
             onClicked: {
                 if(checked){
@@ -30,10 +30,10 @@ Kirigami.FormLayout{
             }
         }
         QQC2.ComboBox{
-            id:cob_os_entries
-            model:kcm.grubData.osEntries
+            id: cob_os_entries
+            model: kcm.grubData.osEntries
             textRole: "title"
-            currentIndex:kcm.grubData.osEntries.indexOf(kcm.grubData.defaultEntry)
+            currentIndex: kcm.grubData.osEntries.indexOf(kcm.grubData.defaultEntry)
 
             onActivated: {
                 if (rb_pre_defined.checked){
