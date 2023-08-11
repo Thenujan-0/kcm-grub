@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set(PROJECT_VERSION "5.26.80")
 
 set(QT_MIN_VERSION "5.15.2")
-set(KF5_MIN_VERSION "5.98.0")
+set(KF5_MIN_VERSION "5.92.0")
 set(KDE_COMPILERSETTINGS_LEVEL "5.82")
 set(CMAKE_CXX_STANDARD 17)
 
@@ -18,17 +18,12 @@ include(KDEClangFormat)
 include(FeatureSummary)
 include(KDEGitCommitHooks)
 
-find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Widgets Quick QuickWidgets DBus Test QuickTest)
+find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Quick QuickWidgets DBus Test QuickTest)
 
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
-    CoreAddons
     I18n
-    XmlGui
     Auth
-    ConfigWidgets
     KIO
-    Archive
-    NewStuff
     Declarative
     KCMUtils
 )
@@ -50,6 +45,7 @@ add_definitions(-DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT)
 
 # kauth_install_helper_files(kcmtest_authhelper org.kde.kcontrol.kcmtest root)
 # install(TARGETS kcmtest_authhelper DESTINATION ${KAUTH_HELPER_INSTALL_DIR})
+set(TEST_CASE_FILES ${CMAKE_BINARY_DIR}/src/tests/testCaseFiles)
 
 configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/src/config.h)
 

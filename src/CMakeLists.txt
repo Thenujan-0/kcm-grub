@@ -16,7 +16,6 @@ target_link_libraries(kcm_grub
     KF5::I18n
     KF5::KCMUtils
     KF5::KIOGui
-    KF5::NewStuff
     KF5::Screen
     KF5::QuickAddons
     KF5::AuthCore

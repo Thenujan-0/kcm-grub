@@ -10,20 +10,14 @@ set(TEST_LIBS stdc++fs
     Qt5::Qml 
     Qt5::Core 
     Qt5::Gui
-    Qt5::Widgets 
     Qt5::Quick 
-    Qt5::QuickWidgets
     Qt5::Test
     KF5::KCMUtils
     KF5::I18n
-    KF5::KCMUtils
     KF5::KIOGui
-    KF5::NewStuff
     KF5::QuickAddons
     KF5::AuthCore
     KF5::KIOCore
-    KF5::KIOWidgets
-    KF5::KIOFileWidgets
     KF5::Screen
 )
 
