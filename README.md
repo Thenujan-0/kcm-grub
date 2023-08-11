@@ -10,10 +10,9 @@ Current features
 - Manage default boot entry
 - Manage boot timeout
 
-Warning: Do not install it along with [kcm-grub2](https://invent.kde.org/system/kcm-grub2)
-
 ## Build instructions
-`mkdir build
+```
+mkdir build
 
 cd build
 
@@ -22,4 +21,4 @@ cmake ..
 sudo make install
 
 kcmshell5 kcm_grub
-`
+```
