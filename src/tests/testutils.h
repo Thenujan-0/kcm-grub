@@ -17,5 +17,6 @@ optional<QString> lineAdded(const QString &state1, const QString &state2);
 QMetaProperty getDefaultEntryTypeProp(GrubData *data);
 QMetaProperty getDefaultEntryProp(GrubData *data);
 QMetaProperty getTimeoutProp(GrubData *data);
-
+QMetaProperty getLanguageProp(GrubData *data);
+QMetaProperty getRecoveryProp(GrubData *data);
 #endif

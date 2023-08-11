@@ -33,9 +33,10 @@ void TestLoadValues::loadsAllValuesCorrectly()
     _data->setCurrentFile(filePath);
     compareValue("GRUB_TIMEOUT", "\"11\"");
     compareValue("GRUB_DEFAULT", "saved");
-    compareValue("GRUB_TIMEOUT_STYLE", "hidden");
+    compareValue("GRUB_TIMEOUT_STYLE", "menu"); // Because look for other os is enabled
     compareValue("GRUB_HIDDEN_TIMEOUT", "4");
     compareValue("GRUB_DISABLE_OS_PROBER", "false");
+    compareValue("LANGUAGE", "");
 }
 
 QTEST_MAIN(TestLoadValues)

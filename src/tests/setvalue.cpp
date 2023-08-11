@@ -53,10 +53,9 @@ void TestSetValue::replaceCommented()
     QVERIFY(state1);
     data->setCurrentFile(writeFile);
 
-    QMetaProperty defaultEntryProp = data->metaObject()->property(2);
-    QMetaProperty defaultEntryTypeProp = data->metaObject()->property(3);
+    QMetaProperty defaultEntryProp = getDefaultEntryProp(data);
+    QMetaProperty defaultEntryTypeProp = getDefaultEntryTypeProp(data);
     GrubData::DefaultEntryType defaultEntryType = defaultEntryTypeProp.read(data).value<GrubData::DefaultEntryType>();
-    qWarning() << defaultEntryProp.read(data) << "default entry";
 
     Entry *entry = new Entry("Manjaro Linux is awesome", -1, Entry::Type::Menuentry, 1);
     QVERIFY(defaultEntryProp.write(data, QVariant::fromValue(entry)));

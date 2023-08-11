@@ -129,3 +129,13 @@ QMetaProperty getTimeoutProp(GrubData *data)
 {
     return data->metaObject()->property(4);
 }
+
+QMetaProperty getLanguageProp(GrubData *data)
+{
+    return data->metaObject()->property(9);
+}
+
+QMetaProperty getRecoveryProp(GrubData *data)
+{
+    return data->metaObject()->property(10);
+}

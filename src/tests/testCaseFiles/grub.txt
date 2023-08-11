@@ -20,4 +20,5 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet udev.log_priority=3"
 GRUB_COLOR_HIGHLIGHT="green/black"
 GRUB_TIMEOUT="11"
 GRUB_COLOR_NORMAL="light-gray/black"
+LANGUAGE=
 
