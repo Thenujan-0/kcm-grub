@@ -18,12 +18,6 @@ QString getCWD()
     return cwd;
 }
 
-QString getTestFilesDir()
-{
-    const QString filePath = getCWD() + "/src/tests/testCaseFiles";
-    return filePath;
-}
-
 QString getDataPath()
 {
     const QString PATH = qgetenv("HOME") + "/.local/share/grub-editor-cpp";

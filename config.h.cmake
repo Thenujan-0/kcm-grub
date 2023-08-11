@@ -56,5 +56,10 @@ inline const QString & grubLocalePath()
     static const QString str = QFile::decodeName("@GRUB_LOCALE@");
     return str;
 }
+inline const QString & getTestFilesDir()
+{
+    static const QString str = QFile::decodeName("@TEST_CASE_FILES@");
+    return str;
+}
 
 #endif

@@ -35,3 +35,10 @@ add_test_exe(setvalue)
 add_test_exe(loadvalues)
 add_test_exe(invaliddefault)
 add_test_exe(gui)
+add_test_exe(loadvaluestogui)
+
+add_custom_target(copy-files ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/src/tests/testCaseFiles
+    ${TEST_CASE_FILES}
+    )

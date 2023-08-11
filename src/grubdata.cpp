@@ -222,6 +222,8 @@ void GrubData::addDefaultValues()
     map["GRUB_DISABLE_OS_PROBER"] = "true";
     map["GRUB_TIMEOUT_STYLE"] = "menu";
     map["GRUB_DISABLE_RECOVERY"] = "false";
+    map["GRUB_COLOR_NORMAL"] = "light-gray/black";
+    map["GRUB_COLOR_HIGHLIGHT"] = "black/light-gray";
 
     QMapIterator<QString, QString> i(map);
     while (i.hasNext()) {

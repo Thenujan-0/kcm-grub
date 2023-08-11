@@ -16,13 +16,15 @@ void compareValue_(GrubData *data, QString key, QString val)
 void TestLoadValues::defaultValues()
 {
     auto _data = new GrubData();
-    const QString filePath = getTestFilesDir() + "/commentedLineTest.txt";
+    const QString filePath = getTestFilesDir() + "/empty.txt";
     QVERIFY(QFile::exists(filePath));
     _data->setCurrentFile(filePath);
     compareValue("GRUB_DEFAULT", "0");
     compareValue("GRUB_TIMEOUT", "5");
     compareValue("GRUB_DISABLE_OS_PROBER", "true");
     compareValue("GRUB_TIMEOUT_STYLE", "menu");
+    compareValue("GRUB_COLOR_HIGHLIGHT", "black/light-gray");
+    compareValue("GRUB_COLOR_NORMAL", "light-gray/black");
 }
 
 void TestLoadValues::loadsAllValuesCorrectly()
