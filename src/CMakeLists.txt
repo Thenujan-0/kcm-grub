@@ -8,8 +8,6 @@ set(KCM_GRUB_SRCS
 add_subdirectory(helper)
 add_library(kcm_grub MODULE ${KCM_GRUB_SRCS})
 
-kcmutils_generate_desktop_file(kcm_grub)
-
 target_compile_definitions(kcm_grub PRIVATE -DPROJECT_VERSION="${PROJECT_VERSION}")
 
 target_link_libraries(kcm_grub
@@ -24,6 +22,8 @@ target_link_libraries(kcm_grub
     KF5::KIOFileWidgets
     Qt5::Test
 )
+
+kcmutils_generate_desktop_file(kcm_grub)
 
 add_subdirectory(tests)
 
